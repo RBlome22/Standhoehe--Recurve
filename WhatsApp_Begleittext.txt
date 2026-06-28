@@ -1,0 +1,14 @@
+Hallo,
+hier ist die Schulungs-App „Standhöhe Recurve Optimierer“.
+
+Bitte den Link auf dem iPad/iPhone in Safari öffnen.
+Falls WhatsApp den Link intern öffnet: Teilen → In Safari öffnen.
+
+Ablauf:
+1. Foto laden oder Kamera verwenden.
+2. Zwei Punkte am Scheibendurchmesser setzen.
+3. 6 Pfeile markieren.
+4. Standhöhe eintragen und Serie speichern.
+5. Nach allen Serien optimale Standhöhe ablesen.
+
+Optional: In Safari über Teilen → Zum Home-Bildschirm als App-Symbol speichern.

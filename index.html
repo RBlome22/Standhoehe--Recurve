@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Standhöhe Recurve – WhatsApp Schulung</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--text:#18202a;--muted:#5b6572;--line:#d8dde5;--accent:#1b63c9;--ok:#0f7b35;--danger:#b00020}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.35}
+header{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);padding:12px 14px}
+h1{font-size:20px;margin:0 0 4px} header p,.hint{margin:0;color:var(--muted);font-size:13px}
+main{max-width:1100px;margin:auto;padding:14px;display:grid;gap:14px}.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 1px 2px #0001}
+h2{font-size:18px;margin:0 0 12px}.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:10px}
+label{display:block;font-size:13px;color:var(--muted);margin:0 0 4px} input,select,textarea,button{font:inherit}
+input,select,textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:#fff} textarea{min-height:64px}
+button{border:0;border-radius:11px;padding:10px 12px;background:var(--accent);color:#fff;font-weight:700}button.secondary{background:#e9eef6;color:#183452}button.danger{background:var(--danger)}button.ok{background:var(--ok)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.col-2{grid-column:span 2}.col-3{grid-column:span 3}.col-4{grid-column:span 4}.col-6{grid-column:span 6}.col-12{grid-column:span 12}
+.status{padding:10px 12px;border-radius:12px;background:#eef5ff;color:#163b6d;border:1px solid #cfe0ff;margin:8px 0}.warn{background:#fff7e6;color:#694700;border-color:#ffe0a3}
+.canvasWrap{width:100%;overflow:auto;border:1px solid var(--line);border-radius:12px;background:#111;touch-action:none}#photoCanvas{display:block;max-width:100%;height:auto;margin:0 auto;background:#111}
+#chartCanvas{width:100%;height:330px;border:1px solid var(--line);border-radius:12px;background:#fff}table{width:100%;border-collapse:collapse;font-size:14px}th,td{border-bottom:1px solid var(--line);padding:8px;text-align:left}th{background:#f2f4f8}.best{background:#eaf8ee}.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:3px 8px;background:#f8fafc;font-size:12px;color:var(--muted)}
+.printOnly{display:none}
+@media(max-width:760px){.col-2,.col-3,.col-4,.col-6{grid-column:span 12}main{padding:10px}}
+@media print{header,.noPrint,.canvasWrap{display:none!important}body{background:#fff}.card{border:0;box-shadow:none}.printOnly{display:block}#chartCanvas{height:280px}}
+</style>
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="theme-color" content="#1b63c9">
+<meta name="apple-mobile-web-app-title" content="Standhöhe Recurve">
+<meta name="application-name" content="Standhöhe Recurve">
+
+</head>
+<body>
+<header><h1>Standhöhe-Optimierer für Recurvebogen – WhatsApp-Schulung</h1><p>Offline-App: Foto laden · Pfeile markieren · Ausreißer streichen · optimale Standhöhe finden</p></header>
+<main>
+
+<section class="card noPrint" id="onlineStartHinweis">
+  <h2>Online-Start über WhatsApp-Link</h2>
+  <p class="hint">
+    Diese Version ist für Netlify oder GitHub Pages vorbereitet. Nach dem Hochladen wird nur der Web-Link per WhatsApp verschickt.
+    Die Teilnehmer öffnen den Link in Safari; dann funktionieren Fotoauswahl, Markierung und Auswertung zuverlässig als Web-App.
+  </p>
+</section>
+
+<section class="card">
+<h2>WhatsApp-Hinweis</h2>
+<p class="hint">Diese App ist eine vollständige Einzeldatei. Für Schulungen per WhatsApp am besten die ZIP-Datei versenden. Empfänger speichern sie in „Dateien“, entpacken sie und öffnen die HTML-Datei auf dem iPad/iPhone.</p>
+<div class="status">Die App läuft offline. WhatsApp selbst führt HTML-Dateien meist nicht direkt aus; deshalb bitte über die Dateien-App öffnen.</div>
+</section>
+
+<section class="card">
+<h2>1. Grundeinstellungen</h2>
+<div class="grid">
+<div class="col-3"><label>Schütze</label><input id="archer"></div>
+<div class="col-3"><label>Bogen / Wurfarme</label><input id="bow" placeholder='z. B. 68", 32 lbs'></div>
+<div class="col-2"><label>Entfernung</label><input id="distance" type="number" value="18"></div>
+<div class="col-2"><label>Einheit</label><select id="distanceUnit"><option>m</option><option>yd</option></select></div>
+<div class="col-2"><label>Serien gesamt</label><input id="seriesTarget" type="number" value="10" min="1" max="30"></div>
+<div class="col-3"><label>Scheibenauflage Durchmesser</label><input id="targetDiameter" type="number" value="40"></div>
+<div class="col-3"><label>Einheit</label><select id="targetUnit"><option value="cm">cm</option><option value="mm">mm</option></select></div>
+<div class="col-3"><label>Pfeile je Serie</label><input id="arrowsPerEnd" type="number" value="6" min="3" max="12"></div>
+<div class="col-3"><label>Ausreißer</label><select id="dropMode"><option value="minArea">kleinste Restfläche</option><option value="centroid">weitester Pfeil vom Schwerpunkt</option></select></div>
+<div class="col-12"><label>Notizen</label><textarea id="notes" placeholder="Pfeile, Sehne, Button, Tiller, Halle/Wetter usw."></textarea></div>
+</div>
+</section>
+
+<section class="card noPrint">
+<h2>2. Serie erfassen</h2>
+<div class="grid">
+<div class="col-3"><label>Seriennummer</label><input id="seriesNo" type="number" value="1" min="1"></div>
+<div class="col-3"><label>Standhöhe gemessen</label><input id="braceHeight" type="number" step="0.1" placeholder="z. B. 22.4"></div>
+<div class="col-3"><label>Einheit</label><select id="braceUnit"><option value="cm">cm</option><option value="mm">mm</option></select></div>
+<div class="col-3"><label>Foto laden</label><input id="imageInput" type="file" accept="image/*"><label style="margin-top:8px">Kamera</label><input id="cameraInput" type="file" accept="image/*" capture="environment"></div>
+</div>
+<div id="statusBox" class="status">Foto laden. Danach linke und rechte Kante der Scheibenauflage antippen. Anschließend die Pfeile antippen.</div>
+<div class="row">
+<button class="secondary" id="modeCalib">Kalibrierung neu</button>
+<button class="secondary" id="modeArrows">Pfeile markieren</button>
+<button class="secondary" id="undoBtn">Letzten Punkt löschen</button>
+<button class="danger" id="resetPointsBtn">Markierungen löschen</button>
+<button class="ok" id="saveSeriesBtn">Serie speichern</button>
+</div>
+<div class="canvasWrap"><canvas id="photoCanvas" width="900" height="650"></canvas></div>
+<p class="hint">Kalibrierung: zwei Punkte auf dem bekannten Scheibendurchmesser setzen, z. B. linker und rechter Rand der 40-cm-Auflage.</p>
+</section>
+
+<section class="card">
+<h2>3. Messkurve und Ergebnis</h2>
+<canvas id="chartCanvas" width="1000" height="330"></canvas>
+<div id="bestResult" class="status warn">Noch keine gespeicherten Serien.</div>
+<div class="row noPrint">
+<button onclick="window.print()">Auswertung drucken</button>
+<button class="secondary" id="exportCsvBtn">CSV exportieren</button>
+<button class="secondary" id="exportJsonBtn">JSON sichern</button>
+<button class="secondary" id="importJsonBtn">JSON laden</button><input id="importFile" type="file" accept="application/json" style="display:none">
+<button class="danger" id="clearAllBtn">Alle Serien löschen</button>
+</div>
+</section>
+
+<section class="card"><h2>4. Serienübersicht</h2><div id="tableWrap"></div></section>
+<section class="card printOnly"><h2>Versuchsablauf</h2><p>Je Standhöhe werden 6 Pfeile geschossen. Pro Serie wird ein Ausreißer gestrichen. Die App berechnet aus den verbleibenden Treffern die konvexe Gruppenfläche in cm². Die Standhöhe mit dem kleinsten Flächeninhalt wird als optimale Standhöhe markiert.</p></section>
+</main>
+
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const state={image:null,mode:"calib1",calib:[],arrows:[],series:JSON.parse(localStorage.getItem("brace_series_wa_v1")||"[]"),settings:JSON.parse(localStorage.getItem("brace_settings_wa_v1")||"{}")};
+function restoreSettings(){for(const[k,v]of Object.entries(state.settings)){if($(k))$(k).value=v}}
+function saveSettings(){const ids=["archer","bow","distance","distanceUnit","seriesTarget","targetDiameter","targetUnit","arrowsPerEnd","dropMode","notes","braceUnit"];let o={};ids.forEach(id=>{if($(id))o[id]=$(id).value});localStorage.setItem("brace_settings_wa_v1",JSON.stringify(o))}
+document.addEventListener("input",saveSettings);
+function setStatus(m,w=false){$("statusBox").textContent=m;$("statusBox").className=w?"status warn":"status"}
+function label(ctx,x,y,t,c){ctx.font="bold 16px system-ui";ctx.textAlign="left";ctx.textBaseline="middle";ctx.lineWidth=4;ctx.strokeStyle="rgba(0,0,0,.75)";ctx.strokeText(t,x,y);ctx.fillStyle=c;ctx.fillText(t,x,y)}
+function circle(ctx,x,y,r){ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill()}
+function screenToCanvas(e){const c=$("photoCanvas"),r=c.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return{x:(t.clientX-r.left)*c.width/r.width,y:(t.clientY-r.top)*c.height/r.height}}
+function targetDiameterCm(){let v=Number($("targetDiameter").value||40);return $("targetUnit").value==="mm"?v/10:v}
+function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
+function scaleCmPerPx(){if(state.calib.length<2)return null;let px=dist(state.calib[0],state.calib[1]);return px?targetDiameterCm()/px:null}
+function hull(points){let p=[...points].sort((a,b)=>a.x-b.x||a.y-b.y);if(p.length<=1)return p;let cross=(o,a,b)=>(a.x-o.x)*(b.y-o.y)-(a.y-o.y)*(b.x-o.x),lo=[],up=[];for(const x of p){while(lo.length>=2&&cross(lo.at(-2),lo.at(-1),x)<=0)lo.pop();lo.push(x)}for(let i=p.length-1;i>=0;i--){let x=p[i];while(up.length>=2&&cross(up.at(-2),up.at(-1),x)<=0)up.pop();up.push(x)}lo.pop();up.pop();return lo.concat(up)}
+function area(poly){if(poly.length<3)return 0;let a=0;for(let i=0;i<poly.length;i++){let p=poly[i],q=poly[(i+1)%poly.length];a+=p.x*q.y-p.y*q.x}return Math.abs(a)/2}
+function analyze(points){let drop=0;if($("dropMode").value==="centroid"){let c={x:points.reduce((s,p)=>s+p.x,0)/points.length,y:points.reduce((s,p)=>s+p.y,0)/points.length},m=-1;points.forEach((p,i)=>{let d=dist(p,c);if(d>m){m=d;drop=i}})}else{let best=Infinity;for(let i=0;i<points.length;i++){let rest=points.filter((_,j)=>j!==i),a=area(hull(rest));if(a<best){best=a;drop=i}}}let used=points.filter((_,i)=>i!==drop),hp=hull(used),max=0;for(let i=0;i<used.length;i++)for(let j=i+1;j<used.length;j++)max=Math.max(max,dist(used[i],used[j]));return{dropIndex:drop,used,hull:hp,areaPx2:area(hp),maxPairPx:max}}
+function computeCurrent(){let sc=scaleCmPerPx(),need=Math.max(3,Number($("arrowsPerEnd").value||6)-1);if(!sc||state.arrows.length<need)return null;let a=analyze(state.arrows);a.areaCm2=a.areaPx2*sc*sc;a.groupDiameterMm=a.maxPairPx*sc*10;return a}
+function drawPhoto(){const c=$("photoCanvas"),ctx=c.getContext("2d");ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,c.width,c.height);ctx.fillStyle="#111";ctx.fillRect(0,0,c.width,c.height);if(state.image){let img=state.image,iw=img.naturalWidth||img.width,ih=img.naturalHeight||img.height,r=Math.min(c.width/iw,c.height/ih),w=iw*r,h=ih*r,x=(c.width-w)/2,y=(c.height-h)/2;try{ctx.drawImage(img,x,y,w,h)}catch(e){ctx.fillStyle="#fff";ctx.fillText("Foto kann nicht dargestellt werden",c.width/2,c.height/2)}}else{ctx.fillStyle="#ddd";ctx.font="22px system-ui";ctx.textAlign="center";ctx.fillText("Foto laden oder mit Kamera aufnehmen",c.width/2,c.height/2)}
+if(state.calib.length){ctx.strokeStyle="#00d1ff";ctx.fillStyle="#00d1ff";ctx.lineWidth=3;state.calib.forEach((p,i)=>{circle(ctx,p.x,p.y,8);label(ctx,p.x+10,p.y-10,"K"+(i+1),"#00d1ff")});if(state.calib.length===2){ctx.beginPath();ctx.moveTo(state.calib[0].x,state.calib[0].y);ctx.lineTo(state.calib[1].x,state.calib[1].y);ctx.stroke()}}
+let res=computeCurrent(),drop=res?res.dropIndex:-1;state.arrows.forEach((p,i)=>{let d=i===drop;ctx.fillStyle=d?"#ff385c":"#36d66b";ctx.strokeStyle="#fff";circle(ctx,p.x,p.y,d?9:8);ctx.stroke();label(ctx,p.x+10,p.y-8,String(i+1),d?"#ff385c":"#36d66b")});
+if(res&&res.hull.length>=3){ctx.beginPath();ctx.moveTo(res.hull[0].x,res.hull[0].y);for(let i=1;i<res.hull.length;i++)ctx.lineTo(res.hull[i].x,res.hull[i].y);ctx.closePath();ctx.fillStyle="rgba(54,214,107,.18)";ctx.fill();ctx.strokeStyle="#36d66b";ctx.lineWidth=3;ctx.stroke();setStatus(`Aktuelle Serie: ${state.arrows.length} Pfeile, Ausreißer Pfeil ${drop+1}, Fläche ${res.areaCm2.toFixed(2)} cm², Gruppendurchmesser ${res.groupDiameterMm.toFixed(1)} mm.`)}else if(state.image){if(state.calib.length<2)setStatus("Foto sichtbar geladen. Bitte zwei Kalibrierpunkte setzen.");else setStatus(`Kalibrierung vorhanden. Bitte Pfeile markieren. Aktuell: ${state.arrows.length}.`)}}
+function loadSelectedPhoto(file){if(!file)return;setStatus("Foto wird geladen ...");let r=new FileReader();r.onload=()=>{let img=new Image();img.onload=()=>{let iw=img.naturalWidth||img.width,ih=img.naturalHeight||img.height,s=Math.min(1100/iw,800/ih,1);$("photoCanvas").width=Math.max(1,Math.round(iw*s));$("photoCanvas").height=Math.max(1,Math.round(ih*s));state.image=img;state.calib=[];state.arrows=[];state.mode="calib1";drawPhoto();setTimeout(drawPhoto,100)};img.onerror=()=>setStatus("Foto konnte nicht dargestellt werden. Bitte JPG/PNG wählen.",true);img.src=r.result};r.onerror=()=>setStatus("Foto konnte nicht gelesen werden.",true);r.readAsDataURL(file)}
+$("imageInput").addEventListener("change",e=>{loadSelectedPhoto(e.target.files[0]);e.target.value=""});$("cameraInput").addEventListener("change",e=>{loadSelectedPhoto(e.target.files[0]);e.target.value=""});
+$("photoCanvas").addEventListener("click",e=>{if(!state.image)return;let p=screenToCanvas(e);if(state.mode.startsWith("calib")){if(state.calib.length>=2)state.calib=[];state.calib.push(p);state.mode=state.calib.length===1?"calib2":"arrows"}else{let max=Number($("arrowsPerEnd").value||6);if(state.arrows.length<max)state.arrows.push(p);else setStatus(`Bereits ${max} Pfeile markiert.`,true)}drawPhoto()});
+$("modeCalib").onclick=()=>{state.mode="calib1";state.calib=[];drawPhoto();setStatus("Kalibrierung neu: zwei Kanten der Scheibenauflage antippen.")};
+$("modeArrows").onclick=()=>{state.mode="arrows";setStatus("Pfeile markieren.")};$("undoBtn").onclick=()=>{if(state.mode.startsWith("calib")&&state.calib.length)state.calib.pop();else if(state.arrows.length)state.arrows.pop();drawPhoto()};$("resetPointsBtn").onclick=()=>{state.calib=[];state.arrows=[];state.mode="calib1";drawPhoto()};
+$("saveSeriesBtn").onclick=()=>{let res=computeCurrent(),need=Number($("arrowsPerEnd").value||6),bh=Number($("braceHeight").value);if(!res||state.arrows.length<need){setStatus(`Bitte Kalibrierung setzen und ${need} Pfeile markieren.`,true);return}if(!bh){setStatus("Bitte Standhöhe eintragen.",true);return}let entry={id:Date.now(),date:new Date().toLocaleString("de-DE"),seriesNo:Number($("seriesNo").value||state.series.length+1),braceHeight:bh,braceUnit:$("braceUnit").value,areaCm2:res.areaCm2,groupDiameterMm:res.groupDiameterMm,droppedArrow:res.dropIndex+1,targetDiameterCm:targetDiameterCm(),distance:Number($("distance").value||18),distanceUnit:$("distanceUnit").value};let idx=state.series.findIndex(s=>s.seriesNo===entry.seriesNo);if(idx>=0)state.series[idx]=entry;else state.series.push(entry);state.series.sort((a,b)=>a.seriesNo-b.seriesNo);localStorage.setItem("brace_series_wa_v1",JSON.stringify(state.series));$("seriesNo").value=Number($("seriesNo").value||1)+1;state.arrows=[];state.calib=[];state.mode="calib1";drawAll();setStatus("Serie gespeichert. Nächste Standhöhe schießen und neues Foto laden.")};
+function norm(s){return s.braceUnit==="mm"?s.braceHeight/10:s.braceHeight}function best(){return state.series.length?state.series.reduce((b,s)=>s.areaCm2<b.areaCm2?s:b,state.series[0]):null}
+function drawChart(){let c=$("chartCanvas"),ctx=c.getContext("2d"),m={l:70,r:25,t:30,b:55},W=c.width-m.l-m.r,H=c.height-m.t-m.b;ctx.clearRect(0,0,c.width,c.height);ctx.fillStyle="#fff";ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle="#d8dde5";ctx.strokeRect(m.l,m.t,W,H);ctx.fillStyle="#18202a";ctx.font="14px system-ui";ctx.fillText("Fläche cm²",10,22);if(!state.series.length){ctx.fillStyle="#5b6572";ctx.textAlign="center";ctx.fillText("Noch keine Messwerte",c.width/2,c.height/2);ctx.textAlign="left";return}let data=[...state.series].sort((a,b)=>norm(a)-norm(b)),xs=data.map(norm),ys=data.map(s=>s.areaCm2),minX=Math.min(...xs),maxX=Math.max(...xs),maxY=Math.max(...ys)*1.15;if(minX===maxX){minX-=.5;maxX+=.5}let X=x=>m.l+(x-minX)/(maxX-minX)*W,Y=y=>m.t+H-y/maxY*H;ctx.strokeStyle="#edf0f5";ctx.fillStyle="#5b6572";ctx.font="12px system-ui";ctx.textAlign="right";for(let i=0;i<=5;i++){let y=maxY*i/5,py=Y(y);ctx.beginPath();ctx.moveTo(m.l,py);ctx.lineTo(m.l+W,py);ctx.stroke();ctx.fillText(y.toFixed(1),m.l-8,py+4)}ctx.textAlign="center";for(let i=0;i<=5;i++){let x=minX+(maxX-minX)*i/5;ctx.fillText(x.toFixed(1),X(x),c.height-30)}ctx.strokeStyle="#1b63c9";ctx.lineWidth=3;ctx.beginPath();data.forEach((s,i)=>{let px=X(norm(s)),py=Y(s.areaCm2);i?ctx.lineTo(px,py):ctx.moveTo(px,py)});ctx.stroke();let b=best();data.forEach(s=>{let px=X(norm(s)),py=Y(s.areaCm2);ctx.beginPath();ctx.arc(px,py,7,0,Math.PI*2);ctx.fillStyle=s.id===b.id?"#0f7b35":"#1b63c9";ctx.fill();ctx.fillStyle="#18202a";ctx.font="12px system-ui";ctx.fillText(String(s.seriesNo),px,py-12)});if(b){ctx.fillStyle="#0f7b35";ctx.font="bold 18px system-ui";ctx.fillText("★ optimal",X(norm(b)),Math.max(18,Y(b.areaCm2)-28))}}
+function renderTable(){let b=best();if(!state.series.length){$("tableWrap").innerHTML="<p class='hint'>Noch keine Serien gespeichert.</p>";return}let h="<table><thead><tr><th>Serie</th><th>Standhöhe</th><th>Fläche</th><th>Gruppen-Ø</th><th>gestrichen</th><th>Datum</th><th class='noPrint'>Aktion</th></tr></thead><tbody>";for(const s of state.series){let ib=b&&s.id===b.id;h+=`<tr class="${ib?'best':''}"><td>${s.seriesNo} ${ib?'<span class="pill">optimal</span>':''}</td><td>${s.braceHeight.toFixed(1)} ${s.braceUnit}</td><td><b>${s.areaCm2.toFixed(2)} cm²</b></td><td>${s.groupDiameterMm.toFixed(1)} mm</td><td>Pfeil ${s.droppedArrow}</td><td>${s.date}</td><td class="noPrint"><button class="secondary" onclick="deleteSeries(${s.id})">löschen</button></td></tr>`}h+="</tbody></table>";$("tableWrap").innerHTML=h}
+window.deleteSeries=id=>{state.series=state.series.filter(s=>s.id!==id);localStorage.setItem("brace_series_wa_v1",JSON.stringify(state.series));drawAll()}
+function renderBest(){let b=best();if(!b){$("bestResult").className="status warn";$("bestResult").textContent="Noch keine gespeicherten Serien.";return}$("bestResult").className="status";$("bestResult").innerHTML=`Optimale Standhöhe: <b>${b.braceHeight.toFixed(1)} ${b.braceUnit}</b> mit <b>${b.areaCm2.toFixed(2)} cm²</b>. Gestrichen wurde Pfeil ${b.droppedArrow}.`}
+function drawAll(){saveSettings();drawChart();renderTable();renderBest();drawPhoto()}
+function download(n,c,m){let b=new Blob([c],{type:m}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=n;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+$("exportCsvBtn").onclick=()=>{let rows=[["Serie","Standhoehe","Einheit","Flaeche_cm2","Gruppendurchmesser_mm","Gestrichener_Pfeil","Datum"]];state.series.forEach(s=>rows.push([s.seriesNo,s.braceHeight,s.braceUnit,s.areaCm2.toFixed(3),s.groupDiameterMm.toFixed(2),s.droppedArrow,s.date]));download("standhoehe_recurve_messwerte.csv",rows.map(r=>r.join(";")).join("\n"),"text/csv;charset=utf-8")}
+$("exportJsonBtn").onclick=()=>download("standhoehe_recurve_sicherung.json",JSON.stringify({settings:state.settings,series:state.series},null,2),"application/json");
+$("importJsonBtn").onclick=()=>$("importFile").click();$("importFile").onchange=e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(d.settings){state.settings=d.settings;localStorage.setItem("brace_settings_wa_v1",JSON.stringify(d.settings));restoreSettings()}if(d.series){state.series=d.series;localStorage.setItem("brace_series_wa_v1",JSON.stringify(d.series))}drawAll()}catch(err){alert("JSON konnte nicht gelesen werden.")}};r.readAsText(f)}
+$("clearAllBtn").onclick=()=>{if(confirm("Alle gespeicherten Serien löschen?")){state.series=[];localStorage.removeItem("brace_series_wa_v1");drawAll()}}
+restoreSettings();drawAll();
+</script>
+</body>
+</html>

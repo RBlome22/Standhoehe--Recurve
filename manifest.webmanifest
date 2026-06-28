@@ -1,0 +1,28 @@
+{
+  "name": "Standhöhe Recurve Optimierer",
+  "short_name": "Standhöhe",
+  "description": "Web-App zur Optimierung der Standhöhe von Recurve-Bögen anhand der Trefferfläche.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f6f7f9",
+  "theme_color": "#1b63c9",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

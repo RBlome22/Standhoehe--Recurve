@@ -1,0 +1,20 @@
+STARTANLEITUNG – STANDHÖHE RECURVE OPTIMIERER
+
+EMPFOHLEN: Netlify
+1. ZIP-Datei auf dem PC entpacken.
+2. Auf https://app.netlify.com/drop gehen.
+3. Den entpackten Ordner in das Browserfenster ziehen.
+4. Netlify erstellt automatisch einen Link.
+5. Diesen Link per WhatsApp an die Schüler schicken.
+
+SCHÜLER:
+1. Link in WhatsApp antippen.
+2. Falls WhatsApp intern öffnet: Teilen → In Safari öffnen.
+3. Foto laden oder Kamera wählen.
+4. Zwei Punkte am Scheibendurchmesser antippen.
+5. Sechs Pfeile antippen.
+6. Standhöhe eintragen und Serie speichern.
+7. Nach allen Serien optimale Standhöhe ablesen.
+
+OPTIONAL:
+In Safari über Teilen → Zum Home-Bildschirm kann die App als Symbol gespeichert werden.
