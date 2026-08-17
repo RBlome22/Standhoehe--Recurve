@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0b6b4b">
+<title>Blankschaft Tuner v2</title>
+<style>
+:root{--bg:#f3f6f4;--card:#fff;--ink:#17231e;--muted:#66736d;--green:#0b6b4b;--green2:#0b3d2e;--line:#d7e0db;--warn:#8b5a00;--danger:#a02929}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}header{position:sticky;top:0;z-index:10;background:#f3f6f4ee;backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:14px 16px}header b{font-size:22px}header span{display:block;color:var(--muted);font-size:13px;margin-top:3px}main{max-width:850px;margin:auto;padding:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:15px;box-shadow:0 5px 20px #0000000d}.hidden{display:none!important}h2{margin:0 0 12px;font-size:22px}.muted{color:var(--muted)}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:650px){.grid{grid-template-columns:1fr}}label{font-weight:700;font-size:14px;display:block;margin:3px 0 5px}input,select{width:100%;font:inherit;font-size:17px;padding:13px;border:1px solid #bccbc3;border-radius:12px;background:#fff}button,.button{border:0;border-radius:14px;padding:14px 16px;min-height:50px;font:inherit;font-weight:800;font-size:16px;cursor:pointer}.primary{background:var(--green);color:#fff}.secondary{background:#e6eeea;color:var(--green2)}.danger{background:#feecec;color:var(--danger)}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.actions>*{flex:1 1 180px}.notice{border-left:5px solid var(--green);padding:12px 14px;border-radius:12px;background:#edf7f2;margin:12px 0;line-height:1.4}.notice.warn{border-left-color:#b87b13;background:#fff7e8}.notice.danger{border-left-color:var(--danger);background:#fff0f0}.steps{display:flex;gap:6px;overflow:auto;margin:0 0 14px}.steps span{white-space:nowrap;background:#e2e9e5;color:#5d6963;border-radius:10px;padding:7px 9px;font-weight:700;font-size:12px}.steps .active{background:var(--green2);color:#fff}.steps .done{background:#dcefe4;color:#12613c}.photo{position:relative;background:#111;border-radius:16px;overflow:hidden;min-height:300px}canvas{display:block;width:100%;height:min(65vh,600px);touch-action:none}.hint{position:absolute;left:10px;right:10px;bottom:10px;background:#000c;color:#fff;border-radius:10px;padding:8px;font-size:13px}.legend{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:10px 0}.legend div{padding:8px;border-radius:9px;background:#eef2f0;font-size:13px}.legend .now{outline:3px solid #e5b53b;background:#fff8db}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.metric{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fafcfa}.metric b{display:block;font-size:20px;margin-top:4px}@media(max-width:600px){.metrics{grid-template-columns:1fr}}table{width:100%;border-collapse:collapse}td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left}.screw{padding:10px 0;border-bottom:1px solid var(--line)}.screw b{font-size:19px}.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.choices button:nth-child(1){background:#e7eef9;color:#234d86}.choices button:nth-child(2){background:#e3f4e8;color:#1b6b3c}.choices button:nth-child(3){background:#fff0df;color:#8a4f00}@media(max-width:600px){.choices{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><b>Blankschaft Tuner</b><span>Version 2.0 · 16 m · 40-cm-Auflage · 3 Blankschäfte</span></header>
+<main>
+<div class="steps" id="steps"></div>
+<section class="card" id="setup">
+<h2>Bogen anlegen</h2>
+<p class="muted">Der aktuelle Nockpunkt gilt als Ausgangsstellung 0. Es muss vorher nichts vermessen werden.</p>
+<div class="grid">
+<div><label>Bogenart</label><select id="bowType"><option value="olympic">Olympischer Recurve</option><option value="barebow">Blankbogen</option></select></div>
+<div><label>Schütze</label><select id="hand"><option value="right">Rechtshand</option><option value="left">Linkshand</option></select></div>
+<div><label>Maximal zulässige Umdrehungen heraus</label><input id="maxTurns" type="number" inputmode="decimal" step="0.25" min="0.25" placeholder="z. B. 4"></div>
+<div><label>Verstellschritt</label><select id="stepTurns"><option value="0.25">¼ Umdrehung</option><option value="0.5">½ Umdrehung</option></select></div>
+<div><label>Bogenname (optional)</label><input id="bowName"></div>
+<div><label>Mittelstück (optional)</label><input id="model"></div>
+</div>
+<div class="notice warn"><b>Sicherheit:</b> Den Maximalwert aus der Herstelleranleitung eintragen. Die App gibt keine Verstellung über diesen Wert hinaus frei.</div>
+<div id="setupError" class="notice danger hidden"></div>
+<div class="actions"><button type="button" class="primary" id="goStart">Weiter zur Startstellung</button></div>
+</section>
+<section class="card hidden" id="start">
+<h2>Startstellung</h2><div id="startText"></div>
+<div class="notice danger"><b>Bogen entspannen.</b> Tillerschrauben nur vorsichtig bis zum mechanischen Anschlag eindrehen, nicht festziehen.</div>
+<div class="actions"><button class="secondary" id="backSetup">Zurück</button><button class="primary" id="goNock">Startstellung hergestellt – weiter</button></div>
+</section>
+<section class="card hidden" id="nock">
+<h2>Nockpunkt optimieren</h2>
+<p><b>3 Blankschäfte auf 16 m</b> in eine <b>40-cm-Auflage</b> schießen. Alle drei Pfeile stecken lassen und ein gemeinsames Foto aufnehmen.</p>
+<div class="actions"><label class="button primary" for="photoInput" style="text-align:center">Foto aufnehmen / auswählen</label><input class="hidden" id="photoInput" type="file" accept="image/*" capture="environment"></div>
+<div id="nockHistory"></div>
+</section>
+<section class="card hidden" id="mark">
+<h2>Foto markieren</h2>
+<p id="prompt" class="muted"></p><div id="legend" class="legend"></div>
+<div class="photo"><canvas id="canvas"></canvas><div class="hint">Antippen = markieren · +/− = zoomen · Pfeile = Bild verschieben</div></div>
+<div class="actions"><button class="secondary" id="zoomOut">− Zoom</button><button class="secondary" id="zoomIn">+ Zoom</button><button class="secondary" id="left">←</button><button class="secondary" id="right">→</button><button class="secondary" id="up">↑</button><button class="secondary" id="down">↓</button></div>
+<div class="actions"><button class="secondary" id="undo">Letzten Punkt löschen</button><button class="danger" id="resetMarks">Markierungen löschen</button><button class="primary" id="evaluate" disabled>Auswerten</button></div>
+</section>
+<section class="card hidden" id="result">
+<h2>Auswertung</h2><div id="metrics" class="metrics"></div><div id="rows"></div><div id="advice"></div>
+<div class="actions"><button class="secondary" id="repeat">Serie wiederholen</button><button class="primary hidden" id="applyNock">Korrektur durchgeführt – neue Serie</button><button class="primary hidden" id="nockDone">Nockpunkt übernehmen</button></div>
+</section>
+<section class="card hidden" id="spine">
+<h2>Tiller / Zuggewicht</h2><div id="screws"></div>
+<p>Jetzt wird die Pfeilreaktion geprüft. In dieser Version wird <b>zu hart / passend / zu weich</b> noch vom Schützen bestätigt.</p>
+<div class="choices"><button id="stiff">Pfeil zu hart</button><button id="fit">Pfeil passend</button><button id="weak">Pfeil zu weich</button></div>
+<div id="spineAdvice"></div>
+</section>
+<section class="card hidden" id="tillerSeries">
+<h2>Neue Tiller-/Zuggewichtsstufe</h2><div id="tillerText"></div>
+<p>Danach wieder 3 Blankschäfte auf 16 m schießen und die Pfeilreaktion beurteilen.</p>
+<div class="actions"><button class="primary" id="afterTiller">Verstellung durchgeführt – Pfeilreaktion prüfen</button></div>
+</section>
+<section class="card hidden" id="done">
+<h2 id="doneTitle">Test beendet</h2><div id="doneText"></div>
+<div class="actions"><button class="primary" id="restart">Neuen Test beginnen</button></div>
+</section>
+</main>
+<script>
+(function(){
+'use strict';
+var names=['Bogen','Start','Nockpunkt','Foto','Auswertung','Tiller','Verstellung','Fertig'];
+var ids=['setup','start','nock','mark','result','spine','tillerSeries','done'];
+var marks=['Scheibe oben','Scheibe rechts','Scheibe unten','Scheibe links','Pfeil 1 Eintritt','Pfeil 1 Nock','Pfeil 2 Eintritt','Pfeil 2 Nock','Pfeil 3 Eintritt','Pfeil 3 Nock'];
+var state={bowType:'olympic',hand:'right',maxTurns:0,stepTurns:.25,top:1,bottom:0,nockOffset:0,nockHistory:[],purpose:'nock'};
+var image=null,pts=[],view={scale:1,x:0,y:0};
+function q(id){return document.getElementById(id)}
+function show(id){for(var i=0;i<ids.length;i++)q(ids[i]).classList.toggle('hidden',ids[i]!==id);renderSteps(id);window.scrollTo(0,0)}
+function renderSteps(id){var n=ids.indexOf(id),html='';for(var i=0;i<names.length;i++)html+='<span class="'+(i===n?'active':i<n?'done':'')+'">'+(i+1)+'. '+names[i]+'</span>';q('steps').innerHTML=html}
+function fmt(v,d){return Number(v).toLocaleString('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d})}
+function startValues(){if(state.bowType==='olympic'){state.top=1;state.bottom=0}else{state.top=0;state.bottom=0}}
+q('goStart').onclick=function(){var m=parseFloat(q('maxTurns').value),e=q('setupError');e.classList.add('hidden');if(!isFinite(m)||m<=0){e.textContent='Bitte zuerst die maximal zulässigen Umdrehungen laut Hersteller eingeben, zum Beispiel 4.';e.classList.remove('hidden');alert(e.textContent);return}state.bowType=q('bowType').value;state.hand=q('hand').value;state.maxTurns=m;state.stepTurns=parseFloat(q('stepTurns').value);startValues();if(state.bowType==='olympic')q('startText').innerHTML='<div class="notice"><b>Olympischer Recurve:</b><ol><li>Beide Tillerschrauben ganz eindrehen.</li><li>Obere Tillerschraube <b>1,0 Umdrehung heraus</b>.</li><li>Untere Tillerschraube bleibt ganz eingedreht.</li></ol></div>';else q('startText').innerHTML='<div class="notice"><b>Blankbogen:</b><ol><li>Beide Tillerschrauben ganz eindrehen.</li><li>Beide Schrauben bleiben für die Startserie ganz eingedreht.</li></ol></div>';show('start')};
+q('backSetup').onclick=function(){show('setup')};q('goNock').onclick=function(){show('nock')};
+q('photoInput').onchange=function(ev){var f=ev.target.files&&ev.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){image=im;pts=[];fit();renderMarks();draw();show('mark')};im.src=r.result};r.readAsDataURL(f)};
+var c=q('canvas'),ctx=c.getContext('2d');function fit(){var w=c.clientWidth||700,h=c.clientHeight||520;c.width=w;c.height=h;var s=Math.min(w/image.width,h/image.height);view.scale=s;view.x=(w-image.width*s)/2;view.y=(h-image.height*s)/2}function draw(){if(!image)return;ctx.clearRect(0,0,c.width,c.height);ctx.drawImage(image,view.x,view.y,image.width*view.scale,image.height*view.scale);for(var i=0;i<pts.length;i++){var x=pts[i].x*view.scale+view.x,y=pts[i].y*view.scale+view.y;ctx.beginPath();ctx.arc(x,y,8,0,Math.PI*2);ctx.fillStyle=i<4?'#ffd23f':'#32df7e';ctx.fill();ctx.strokeStyle='#111';ctx.lineWidth=2;ctx.stroke()}}
+function renderMarks(){q('prompt').innerHTML=pts.length<10?'<b>'+(pts.length+1)+'/10:</b> '+marks[pts.length]+' markieren.':'<b>Alle Markierungen gesetzt.</b>';var h='';for(var i=0;i<marks.length;i++)h+='<div class="'+(i===pts.length?'now':'')+'">'+(i<pts.length?'✓ ':'')+marks[i]+'</div>';q('legend').innerHTML=h;q('evaluate').disabled=pts.length!==10}
+c.onclick=function(ev){if(!image||pts.length>=10)return;var r=c.getBoundingClientRect(),cx=ev.clientX-r.left,cy=ev.clientY-r.top;pts.push({x:(cx-view.x)/view.scale,y:(cy-view.y)/view.scale});renderMarks();draw()};
+q('zoomIn').onclick=function(){view.scale*=1.2;draw()};q('zoomOut').onclick=function(){view.scale/=1.2;draw()};q('left').onclick=function(){view.x+=40;draw()};q('right').onclick=function(){view.x-=40;draw()};q('up').onclick=function(){view.y+=40;draw()};q('down').onclick=function(){view.y-=40;draw()};q('undo').onclick=function(){pts.pop();renderMarks();draw()};q('resetMarks').onclick=function(){pts=[];renderMarks();draw()};
+function norm(p,T,R,B,L){var cx=(T.x+R.x+B.x+L.x)/4,cy=(T.y+R.y+B.y+L.y)/4,exx=(R.x-L.x)/2,exy=(R.y-L.y)/2,eyx=(B.x-T.x)/2,eyy=(B.y-T.y)/2,det=exx*eyy-exy*eyx;if(Math.abs(det)<1e-6)throw new Error('Scheibenpunkte ungünstig');var dx=p.x-cx,dy=p.y-cy;return{u:(dx*eyy-dy*eyx)/det,v:(exx*dy-exy*dx)/det}}
+q('evaluate').onclick=function(){try{var T=pts[0],R=pts[1],B=pts[2],L=pts[3],pairs=[[4,5],[6,7],[8,9]],arr=[];for(var i=0;i<3;i++){var a=norm(pts[pairs[i][0]],T,R,B,L),n=norm(pts[pairs[i][1]],T,R,B,L),du=n.u-a.u,dv=n.v-a.v,ang=Math.atan2(-dv,Math.max(.0001,Math.abs(du)))*180/Math.PI;arr.push(ang)}var mean=(arr[0]+arr[1]+arr[2])/3,spread=Math.sqrt(((arr[0]-mean)*(arr[0]-mean)+(arr[1]-mean)*(arr[1]-mean)+(arr[2]-mean)*(arr[2]-mean))/3);state.last={arr:arr,mean:mean,spread:spread};renderResult();show('result')}catch(e){alert('Bitte die Markierungen neu setzen: '+e.message)}};
+function renderResult(){var m=state.last;q('metrics').innerHTML='<div class="metric">Mittelwert<b>'+(m.mean>=0?'+':'')+fmt(m.mean,2)+'°</b></div><div class="metric">Streuung<b>'+fmt(m.spread,2)+'°</b></div><div class="metric">Nockpunkt<b>'+(state.nockOffset>0?'+':'')+fmt(state.nockOffset,1)+' Schritte</b></div>';q('rows').innerHTML='<table><tr><th>Pfeil</th><th>Nocklage</th></tr><tr><td>1</td><td>'+fmt(m.arr[0],2)+'°</td></tr><tr><td>2</td><td>'+fmt(m.arr[1],2)+'°</td></tr><tr><td>3</td><td>'+fmt(m.arr[2],2)+'°</td></tr></table>';q('applyNock').classList.add('hidden');q('nockDone').classList.add('hidden');if(m.spread>1){q('advice').innerHTML='<div class="notice warn"><b>Serie uneinheitlich.</b> Bitte wiederholen, ohne am Bogen zu verstellen.</div>';return}if(Math.abs(m.mean)<=.5){q('advice').innerHTML='<div class="notice"><b>Nockpunkt im Zielbereich.</b> Diese Stellung übernehmen.</div>';q('nockDone').classList.remove('hidden');return}var dir=m.mean>0?'absenken':'anheben';q('advice').innerHTML='<div class="notice"><b>Korrektur:</b> Nockpunkt eine kleine Stufe '+dir+'. Danach erneut 3 Pfeile schießen.</div>';q('applyNock').classList.remove('hidden')}
+q('repeat').onclick=function(){show('nock')};q('applyNock').onclick=function(){state.nockHistory.push({offset:state.nockOffset,mean:state.last.mean});state.nockOffset+=state.last.mean>0?-1:1;renderHistory();show('nock')};q('nockDone').onclick=function(){renderScrews();show('spine')};function renderHistory(){if(!state.nockHistory.length){q('nockHistory').innerHTML='';return}var h='<div class="notice"><b>Bisher:</b> ';for(var i=0;i<state.nockHistory.length;i++)h+=' '+(i+1)+': '+fmt(state.nockHistory[i].mean,2)+'°;';q('nockHistory').innerHTML=h+'</div>'}
+function renderScrews(){q('screws').innerHTML='<div class="screw">Obere Schraube: <b>'+fmt(state.top,2)+' / '+fmt(state.maxTurns,2)+' U heraus</b></div><div class="screw">Untere Schraube: <b>'+fmt(state.bottom,2)+' / '+fmt(state.maxTurns,2)+' U heraus</b></div>'}
+function finish(title,text){q('doneTitle').textContent=title;q('doneText').innerHTML=text;show('done')}
+q('stiff').onclick=function(){var atStart=(state.bowType==='olympic'&&state.top===1&&state.bottom===0)||(state.bowType==='barebow'&&state.top===0&&state.bottom===0);if(atStart)finish('Test beendet – Pfeil zu hart','<div class="notice danger"><b>Pfeil bereits in der Ausgangsstellung zu hart.</b><br>Keine weitere Tiller-/Zuggewichtsreduzierung durchführen. Die Anpassung eines zu harten Pfeils wird später in einem eigenen Programmteil behandelt.</div>');else{state.top-=state.stepTurns;state.bottom-=state.stepTurns;finish('Vorige Stufe verwenden','<div class="notice warn">Die letzte Zuggewichtsreduzierung war zu weit. Tillerschrauben eine Stufe zurück auf oben '+fmt(state.top,2)+' U und unten '+fmt(state.bottom,2)+' U.</div>')}};
+q('fit').onclick=function(){finish('Bogenabstimmung abgeschlossen','<div class="notice"><b>Pfeil passend.</b></div><div class="metric">Nockpunkt: <b>'+(state.nockOffset>0?'+':'')+fmt(state.nockOffset,1)+' Korrekturschritte</b></div><div class="metric">Oben: <b>'+fmt(state.top,2)+' U heraus</b></div><div class="metric">Unten: <b>'+fmt(state.bottom,2)+' U heraus</b></div>')};
+q('weak').onclick=function(){var nt=state.top+state.stepTurns,nb=state.bottom+state.stepTurns;if(nt>state.maxTurns+1e-9||nb>state.maxTurns+1e-9){finish('Test beendet – Pfeil zu weich','<div class="notice danger"><b>Maximal zulässige Schraubenstellung erreicht.</b><br>Der Pfeil ist weiterhin zu weich. Keine Schraube weiter herausdrehen.</div>');return}state.top=nt;state.bottom=nb;q('tillerText').innerHTML='<div class="notice"><b>Pfeil zu weich:</b><br>Obere Tillerschraube '+(state.stepTurns===.25?'¼':'½')+' Umdrehung heraus.<br>Untere Tillerschraube '+(state.stepTurns===.25?'¼':'½')+' Umdrehung heraus.<br><br>Neue Stellung: oben <b>'+fmt(state.top,2)+' U</b>, unten <b>'+fmt(state.bottom,2)+' U</b> heraus.</div>';show('tillerSeries')};
+q('afterTiller').onclick=function(){renderScrews();show('spine')};q('restart').onclick=function(){state={bowType:'olympic',hand:'right',maxTurns:0,stepTurns:.25,top:1,bottom:0,nockOffset:0,nockHistory:[],purpose:'nock'};q('maxTurns').value='';q('bowType').value='olympic';q('stepTurns').value='.25';show('setup')};
+renderSteps('setup');
+})();
+</script>
+</body>
+</html>
