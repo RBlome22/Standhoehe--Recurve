@@ -1,0 +1,112 @@
+name: Polish Spanish archery apps
+on:
+  push:
+    paths:
+      - '.github/workflows/polish-spanish-apps.yml'
+permissions:
+  contents: write
+jobs:
+  polish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Correct Spanish terminology and remaining German text
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def patch(path, pairs):
+              p=Path(path); t=p.read_text(encoding='utf-8')
+              for a,b in pairs: t=t.replace(a,b)
+              p.write_text(t,encoding='utf-8')
+
+          patch('standhoehe-es/index.html',[
+            ('z. B.','p. ej.'),
+            ('Seleccionar foto. Danach linke und rechte Kante der Scheibenauflage antippen. Anschließend die Flechae antippen.','Seleccione una foto. Después toque el borde izquierdo y el borde derecho de la diana para calibrar. A continuación marque los impactos de las flechas.'),
+            ('Je Fistmele werden 6 Flechae geschossen. Pro Tanda wird ein Valor atípico descartada. Die App berechnet aus den verbleibenden Treffern die konvexe Gruppenfläche in cm². Die Fistmele mit dem kleinsten Áreaninhalt wird als optimale Fistmele markiert.','Para cada valor de fistmele se tiran 6 flechas. En cada tanda se descarta un impacto atípico. La aplicación calcula el área convexa de la agrupación restante en cm². El fistmele con el área más pequeña se marca como óptimo.'),
+            ('Foto kann nicht dargestellt werden','No se pudo mostrar la foto'),
+            ('Seleccionar foto oder mit Cámara aufnehmen','Seleccione una foto o tome una con la cámara'),
+            ('Aktuelle Tanda: ${state.arrows.length} Flechae, Valor atípico Flecha ${drop+1}, Área ${res.areaCm2.toFixed(2)} cm², Diámetro de agrupación ${res.groupDiameterMm.toFixed(1)} mm.','Tanda actual: ${state.arrows.length} flechas, flecha descartada ${drop+1}, área ${res.areaCm2.toFixed(2)} cm², diámetro de agrupación ${res.groupDiameterMm.toFixed(1)} mm.'),
+            ('Kalibrierung vorhanden. Bitte Marcar impactos. Aktuell: ${state.arrows.length}.','Calibración lista. Marque los impactos. Actualmente: ${state.arrows.length}.'),
+            ('Repetir calibración: zwei Kanten der Scheibenauflage antippen.','Nueva calibración: toque dos bordes opuestos de la diana.'),
+            ('Bitte Kalibrierung setzen und ${need} Marcar impactos.','Complete la calibración y marque ${need} impactos.'),
+            ('Tanda gespeichert. Nächste Fistmele schießen und neues Seleccionar foto.','Tanda guardada. Ajuste el siguiente fistmele, tire de nuevo y cargue una nueva foto.'),
+            ('Noch keine Tandan gespeichert.','Aún no hay tandas guardadas.'),
+            ('<span class="pill">optimal</span>','<span class="pill">óptimo</span>'),
+            ('Fistmele óptimo: <b>${b.braceHeight.toFixed(1)} ${b.braceUnit}</b> mit <b>${b.areaCm2.toFixed(2)} cm²</b>. Se descartó la flecha ${b.droppedArrow}.','Fistmele óptimo: <b>${b.braceHeight.toFixed(1)} ${b.braceUnit}</b> con un área de agrupación de <b>${b.areaCm2.toFixed(2)} cm²</b>. Se descartó la flecha ${b.droppedArrow}.'),
+            ('"Tanda","Standhoehe","Unidad","Flaeche_cm2","Diámetro de agrupación_mm","Gestrichener_Flecha","Fecha"','"Tanda","Fistmele","Unidad","Area_cm2","Diametro_agrupacion_mm","Flecha_descartada","Fecha"'),
+            ('standhoehe_recurve_messwerte.csv','fistmele_recurvo_mediciones.csv'),
+            ('standhoehe_recurve_sicherung.json','fistmele_recurvo_copia.json'),
+            ('de-DE','es-ES'),
+            ('Flechae','flechas'),
+          ])
+
+          patch('blankschaft-tuner-es/index.html',[
+            ('Afinador de flechas sin plumas','Afinador de flecha desnuda'),
+            ('3 emplumadas + 3 sin plumas','3 emplumadas + 3 desnudas'),
+            ('flechas sin plumas','flechas desnudas'),('Flechas sin plumas','Flechas desnudas'),
+            ('Agrupación de flechas sin plumas','Agrupación de flechas desnudas'),
+            ('impactos de flechas sin plumas','impactos de flechas desnudas'),
+            ('Sin plumas','Desnudas'),('sin plumas','desnudas'),
+            ('<label>Schütze</label>','<label>Lateralidad</label>'),
+            ('z. B.','p. ej.'),
+            ('Posición inicial hergestellt – Messserie beginnen','Posición inicial establecida – iniciar la serie de medición'),
+            ('<b>3 flechas emplumadas a 16 m</b> tirar. Después registre los tres impactos en una foto.','Tire <b>3 flechas emplumadas a 16 m</b>. Después registre los tres impactos en una foto.'),
+            ('<b>3 flechas desnudas a 16 m</b> schießen.','Tire <b>3 flechas desnudas a 16 m</b>.'),
+            ("return '<b>Objetivo base '+(state.hand==='right'?'Diestro':'Zurdo')+':</b> Flechas desnudas ligeramente <b>'+side+'</b> und leicht <b>más bajas</b> als die befiederte Gruppe. La zona objetivo admisible se adapta a la agrupación medida del arquero.'","return '<b>Objetivo base '+(state.hand==='right'?'Diestro':'Zurdo')+':</b> flechas desnudas ligeramente <b>'+side+'</b> y ligeramente <b>más bajas</b> que la agrupación de flechas emplumadas. La zona objetivo admisible se adapta a la agrupación medida del arquero.'"),
+            ("'Diestro → Desnudasschäfte leicht a la izquierda und leicht más bajas.'","'Diestro → flechas desnudas ligeramente a la izquierda y ligeramente más bajas.'"),
+            ("'Zurdo → Desnudasschäfte leicht a la derecha und leicht más bajas.'","'Zurdo → flechas desnudas ligeramente a la derecha y ligeramente más bajas.'"),
+            ('<b>Corrección:</b> Die vorhandene Einstellung nicht verändern. Sie gilt als Ausgang 0°. Heraus höchstens +1 Umdrehung; hinein nach Bedarf bis zur mechanisch zulässigen Grenze.','<b>Corrección:</b> No modifique la posición actual. Se toma como punto de partida 0°. Hacia fuera, como máximo +1 vuelta; hacia dentro, lo necesario hasta el límite mecánico permitido.'),
+            ("var dir=m.dy<t.cy?'subir':'bajar';state.pendingAdjustment={type:'nock',dir:dir};rec+='<div class=\"notice\"><b>Primero, el punto de enfleche:</b> Die vertikale Lage liegt außerhalb der an diesen Schützen adaptadaen Zielfläche. Nockpunkt eine kleine Stufe <b>'+dir+'</b> el punto de enfleche un pequeño paso y vuelva a tirar ambas agrupaciones.</div>';","var dir=m.dy<t.cy?'subir':'bajar';state.pendingAdjustment={type:'nock',dir:dir};rec+='<div class=\"notice\"><b>Primero, el punto de enfleche:</b> La posición vertical está fuera de la zona objetivo adaptada al arquero. Hay que <b>'+dir+'</b> el punto de enfleche un pequeño paso y volver a tirar ambas agrupaciones.</div>';"),
+            ("var r=recommendedTiller(),word=r.dir>0?'herausdrehen':'hineindrehen';","var r=recommendedTiller(),word=r.dir>0?'desenroscar hacia fuera':'enroscar hacia dentro';"),
+            ('In der Corrección ist maximal +1 Umdrehung heraus erlaubt.','En el modo de corrección se permite como máximo +1 vuelta hacia fuera.'),
+            ('Schützenadaptadaer Optimalbereich erreicht.','Se ha alcanzado la zona óptima adaptada al arquero.'),
+            ('Diese Einstellung ist an die gemessene Gruppierung dieses Schützen adaptada.','Este ajuste está adaptado a la agrupación medida de este arquero.'),
+            ("(dir>0?'heraus':'hinein')","(dir>0?'hacia fuera':'hacia dentro')"),
+            ("(back>0?'hineindrehen':'herausdrehen')","(back>0?'enroscar hacia dentro':'desenroscar hacia fuera')"),
+            ('Danach ist die für diesen Schützen ermediate optimale Einstellung wieder hergestellt.','Después queda restablecido el ajuste óptimo determinado para este arquero.'),
+            ("'. intern '+","'. ajuste interno '+"),
+            (' · vertikal ',' · vertical '),
+            ('Beide Tillerschrauben noch <b>','Ambos tornillos de ajuste de las palas <b>'),
+            ('Schützenadaptadae Abstimmung.','Puesta a punto adaptada al arquero.'),
+            ('Diese Einstellung wurde anhand der gemessenen Gruppierung und Wiederholgenauigkeit dieses Schützen ermediat.','Este ajuste se ha determinado a partir de la agrupación y la repetibilidad medidas de este arquero.'),
+            ('Ziel horizontal','Objetivo horizontal'),('Ziel vertikal','Objetivo vertical'),
+            ('de-DE','es-ES'),
+          ])
+
+          patch('bogen-setup-assistent-es/index.html',[
+            ('Flecha sin plumas','Flecha desnuda'),('flechas sin plumas','flechas desnudas'),('flecha sin plumas','flecha desnuda'),
+            ('Nur Fistmele öffnen','Abrir solo fistmele'),('Nur Flecha desnuda öffnen','Abrir solo flecha desnuda'),
+            ('Fase 1 – Fistmele optimieren','Fase 1 – Optimizar el fistmele'),
+            ('Führe die Fistmelenmessung vollständig durch. Danach unten auf <b>„Fistmele abgeschlossen“</b> drücken. Wenn die App im gleichen Browser läuft, versucht der Assistent das beste Ergebnis automatisch zu übernehmen.','Complete toda la medición del fistmele. Después pulse <b>«Fistmele finalizado»</b>. Si la aplicación se ejecuta en el mismo navegador, el asistente intentará importar automáticamente el mejor resultado.'),
+            ('Fistmelen-Optimierer','Optimizador de fistmele'),
+            ('Fistmele abgeschlossen – Ergebnis übernehmen','Fistmele finalizado – importar resultado'),
+            ('Optimale Fistmele (optional)','Fistmele óptimo (opcional)'),
+            ('z. B.','p. ej.'),
+            ('Der Gruppendurchmesser dient hier nur als Orientierung für den Leistungsstand. Der Flecha desnuda-Tuner bestimmt seine persönliche Toleranz anschließend neu aus der aktuellen befiederten Referenzgruppe.','El diámetro de agrupación se utiliza solo como referencia de la repetibilidad actual. El afinador de flecha desnuda volverá a calcular la tolerancia personal a partir de la agrupación de referencia con flechas emplumadas.'),
+            ('Weiter zur Flecha desnuda-Abstimmung','Continuar con la puesta a punto de flecha desnuda'),
+            ('Zurück zur Fistmele','Volver al fistmele'),
+            ('Fase 2 – Flecha desnuda, Nockpunkt und Tiller','Fase 2 – Flecha desnuda, punto de enfleche y tiller'),
+            ('Flecha desnuda Tuner','Afinador de flecha desnuda'),
+            ('Zurück zum Resultado intermedio','Volver al resultado intermedio'),
+            ('Die Flecha desnuda-Abstimmung berücksichtigt die aktuelle Gruppierung des Schützen. Bei später deutlich verbesserter Schießtechnik empfiehlt sich eine erneute Korrektur.','La puesta a punto con flecha desnuda tiene en cuenta la agrupación actual del arquero. Si más adelante mejora claramente la técnica y la repetibilidad, se recomienda repetir la corrección.'),
+            ('Fistmele einzeln','Fistmele por separado'),('Flecha desnuda einzeln','Flecha desnuda por separado'),
+            ('Fistmelen-Ergebnis gefunden.','Resultado de fistmele encontrado.'),
+            ('Fase 1 abgeschlossen.','Fase 1 finalizada.'),
+            ('Übernommene optimale Fistmele:','Fistmele óptimo importado:'),
+            ('Orientierende Gruppierung aus Fase 1:','Agrupación orientativa de la fase 1:'),
+            ('Der Flecha desnuda-Tuner ermittelt seine Toleranz jetzt nochmals aus den 3 befiederten Referenzpfeilen.','El afinador de flecha desnuda volverá a calcular su tolerancia a partir de las 3 flechas emplumadas de referencia.'),
+            ('Referenz-Gruppendurchmesser aus Fase 1:','Diámetro de agrupación de referencia de la fase 1:'),
+            ('Nockpunkt/Tiller/Pfeilabstimmung: im Flecha desnuda-Tuner abgeschlossen.','Punto de enfleche/tiller/ajuste de flecha: finalizado en el afinador de flecha desnuda.'),
+            ("||'nicht eingetragen'","||'no indicado'"),
+            ('de-DE','es-ES'),
+            ('https://rblome22.github.io/Standhoehe--Recurve/standhoehe-es/blankschaft-tuner-v261/','https://rblome22.github.io/Standhoehe--Recurve/blankschaft-tuner-es/'),
+          ])
+          PY
+      - name: Commit cleanup
+        run: |
+          git config user.name "RBlome22"
+          git config user.email "r.blome@rainer-blome.de"
+          git add standhoehe-es/index.html blankschaft-tuner-es/index.html bogen-setup-assistent-es/index.html
+          git commit -m "Polish Spanish archery terminology" || exit 0
+          git push
