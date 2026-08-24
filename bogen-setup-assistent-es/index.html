@@ -12,53 +12,53 @@
 </style>
 </head>
 <body>
-<header><b>Asistente de puesta a punto del arco</b><span>Para principiantes: primero fistmele, después flechas sin plumas / punto de enfleche / tiller</span></header>
+<header><b>Asistente de puesta a punto del arco</b><span>Para principiantes: primero fistmele, después flechas desnudas / punto de enfleche / tiller</span></header>
 <main>
 <div class="steps" id="steps"></div>
 <section class="card" id="intro">
 <h1>Puesta a punto del arco paso a paso</h1>
 <p>Este tercer programa combina las dos aplicaciones existentes en un proceso guiado. <b>Las aplicaciones individuales se mantienen por separado.</b></p>
-<div class="notice blue"><b>Orden recomendado:</b><br>1. Optimizar el fistmele y conseguir una agrupación reproducible.<br>2. Después ajustar el punto de enfleche y la rigidez dinámica con 3 flechas emplumadas + 3 flechas sin plumas.</div>
-<div class="grid"><div class="metric">Fase 1<b>Fistmele</b><span class="muted">Minimizar el área de agrupación</span></div><div class="metric">Fase 2<b>Flecha sin plumas</b><span class="muted">Punto de enfleche + tiller/potencia</span></div><div class="metric">Objetivo<b>Apto para principiantes</b><span class="muted">Tolerancia adaptada a la agrupación</span></div></div>
-<div class="actions"><button class="primary" id="startWizard">Iniciar puesta a punto combinada</button><a class="btn secondary" href="https://rblome22.github.io/Standhoehe--Recurve/standhoehe-es/" target="_blank">Nur Fistmele öffnen</a><a class="btn secondary" href="https://rblome22.github.io/Standhoehe--Recurve/standhoehe-es/blankschaft-tuner-v261/" target="_blank">Nur Flecha sin plumas öffnen</a></div>
+<div class="notice blue"><b>Orden recomendado:</b><br>1. Optimizar el fistmele y conseguir una agrupación reproducible.<br>2. Después ajustar el punto de enfleche y la rigidez dinámica con 3 flechas emplumadas + 3 flechas desnudas.</div>
+<div class="grid"><div class="metric">Fase 1<b>Fistmele</b><span class="muted">Minimizar el área de agrupación</span></div><div class="metric">Fase 2<b>Flecha desnuda</b><span class="muted">Punto de enfleche + tiller/potencia</span></div><div class="metric">Objetivo<b>Apto para principiantes</b><span class="muted">Tolerancia adaptada a la agrupación</span></div></div>
+<div class="actions"><button class="primary" id="startWizard">Iniciar puesta a punto combinada</button><a class="btn secondary" href="https://rblome22.github.io/Standhoehe--Recurve/standhoehe-es/" target="_blank">Abrir solo fistmele</a><a class="btn secondary" href="https://rblome22.github.io/Standhoehe--Recurve/blankschaft-tuner-es/" target="_blank">Abrir solo flecha desnuda</a></div>
 </section>
 <section class="card hidden" id="brace">
-<h2>Fase 1 – Fistmele optimieren</h2>
-<div class="notice">Führe die Fistmelenmessung vollständig durch. Danach unten auf <b>„Fistmele abgeschlossen“</b> drücken. Wenn die App im gleichen Browser läuft, versucht der Assistent das beste Ergebnis automatisch zu übernehmen.</div>
-<div class="frameWrap"><iframe id="braceFrame" title="Fistmelen-Optimierer" src="https://rblome22.github.io/Standhoehe--Recurve/standhoehe-es/"></iframe></div>
-<div class="actions"><button class="primary" id="braceDone">Fistmele abgeschlossen – Ergebnis übernehmen</button><button class="secondary" id="backIntro">Volver al resumen</button></div>
+<h2>Fase 1 – Optimizar el fistmele</h2>
+<div class="notice">Complete toda la medición del fistmele. Después pulse <b>«Fistmele finalizado»</b>. Si la aplicación se ejecuta en el mismo navegador, el asistente intentará importar automáticamente el mejor resultado.</div>
+<div class="frameWrap"><iframe id="braceFrame" title="Optimizador de fistmele" src="https://rblome22.github.io/Standhoehe--Recurve/standhoehe-es/"></iframe></div>
+<div class="actions"><button class="primary" id="braceDone">Fistmele finalizado – importar resultado</button><button class="secondary" id="backIntro">Volver al resumen</button></div>
 </section>
 <section class="card hidden" id="transfer">
 <h2>Resultado intermedio</h2>
 <div id="transferMsg" class="notice blue"></div>
-<div class="two"><div><label>Optimale Fistmele (optional)</label><input id="braceHeight" placeholder="z. B. 22,4 cm"></div><div><label>Diámetro de agrupación de la mejor tanda (opcional)</label><input id="groupDiameter" placeholder="z. B. 85 mm"></div></div>
-<div class="notice warn"><b>Nota:</b> Der Gruppendurchmesser dient hier nur als Orientierung für den Leistungsstand. Der Flecha sin plumas-Tuner bestimmt seine persönliche Toleranz anschließend neu aus der aktuellen befiederten Referenzgruppe.</div>
-<div class="actions"><button class="primary" id="goBlank">Weiter zur Flecha sin plumas-Abstimmung</button><button class="secondary" id="backBrace">Zurück zur Fistmele</button></div>
+<div class="two"><div><label>Fistmele óptimo (opcional)</label><input id="braceHeight" placeholder="p. ej. 22,4 cm"></div><div><label>Diámetro de agrupación de la mejor tanda (opcional)</label><input id="groupDiameter" placeholder="p. ej. 85 mm"></div></div>
+<div class="notice warn"><b>Nota:</b> El diámetro de agrupación se utiliza solo como referencia de la repetibilidad actual. El afinador de flecha desnuda volverá a calcular la tolerancia personal a partir de la agrupación de referencia con flechas emplumadas.</div>
+<div class="actions"><button class="primary" id="goBlank">Continuar con la puesta a punto de flecha desnuda</button><button class="secondary" id="backBrace">Volver al fistmele</button></div>
 </section>
 <section class="card hidden" id="blank">
-<h2>Fase 2 – Flecha sin plumas, Nockpunkt und Tiller</h2>
+<h2>Fase 2 – Flecha desnuda, punto de enfleche y tiller</h2>
 <div id="carryInfo" class="notice blue"></div>
-<div class="frameWrap"><iframe id="blankFrame" title="Flecha sin plumas Tuner" src="https://rblome22.github.io/Standhoehe--Recurve/standhoehe-es/blankschaft-tuner-v261/"></iframe></div>
-<div class="actions"><button class="primary" id="blankDone">Puesta a punto finalizada</button><button class="secondary" id="backTransfer">Zurück zum Resultado intermedio</button></div>
+<div class="frameWrap"><iframe id="blankFrame" title="Afinador de flecha desnuda" src="https://rblome22.github.io/Standhoehe--Recurve/blankschaft-tuner-es/"></iframe></div>
+<div class="actions"><button class="primary" id="blankDone">Puesta a punto finalizada</button><button class="secondary" id="backTransfer">Volver al resultado intermedio</button></div>
 </section>
 <section class="card hidden" id="done">
 <h2>Puesta a punto del arco finalizada</h2>
 <div id="summary" class="notice"></div>
-<div class="notice blue"><b>Ajuste adaptado al arquero:</b> Die Flecha sin plumas-Abstimmung berücksichtigt die aktuelle Gruppierung des Schützen. Bei später deutlich verbesserter Schießtechnik empfiehlt sich eine erneute Korrektur.</div>
-<div class="actions"><button class="primary" id="restart">Iniciar un nuevo proceso</button><a class="btn secondary" href="https://rblome22.github.io/Standhoehe--Recurve/standhoehe-es/" target="_blank">Fistmele einzeln</a><a class="btn secondary" href="https://rblome22.github.io/Standhoehe--Recurve/standhoehe-es/blankschaft-tuner-v261/" target="_blank">Flecha sin plumas einzeln</a></div>
+<div class="notice blue"><b>Ajuste adaptado al arquero:</b> La puesta a punto con flecha desnuda tiene en cuenta la agrupación actual del arquero. Si más adelante mejora claramente la técnica y la repetibilidad, se recomienda repetir la corrección.</div>
+<div class="actions"><button class="primary" id="restart">Iniciar un nuevo proceso</button><a class="btn secondary" href="https://rblome22.github.io/Standhoehe--Recurve/standhoehe-es/" target="_blank">Fistmele por separado</a><a class="btn secondary" href="https://rblome22.github.io/Standhoehe--Recurve/blankschaft-tuner-es/" target="_blank">Flecha desnuda por separado</a></div>
 </section>
 </main>
 <footer>© 2026 Rainer Blome · r.blome@rainer-blome.de · Todos los derechos reservados.</footer>
 <script>
 (function(){'use strict';
-var ids=['intro','brace','transfer','blank','done'],names=['Resumen','Fistmele','Importación','Flecha sin plumas','Final'];
+var ids=['intro','brace','transfer','blank','done'],names=['Resumen','Fistmele','Importación','Flecha desnuda','Final'];
 function q(id){return document.getElementById(id)}
 function show(id){ids.forEach(function(x){q(x).classList.toggle('hidden',x!==id)});var n=ids.indexOf(id),h='';names.forEach(function(x,i){h+='<span class="'+(i===n?'active':i<n?'done':'')+'">'+(i+1)+'. '+x+'</span>'});q('steps').innerHTML=h;window.scrollTo(0,0)}
 function readBrace(){var found=null;try{var raw=localStorage.getItem('brace_series_wa_v1'),arr=raw?JSON.parse(raw):[];if(arr&&arr.length){var best=arr.reduce(function(a,b){return Number(b.areaCm2)<Number(a.areaCm2)?b:a},arr[0]);found={height:Number(best.braceHeight),unit:best.braceUnit||'cm',diam:Number(best.groupDiameterMm),area:Number(best.areaCm2),series:best.seriesNo}}}catch(e){}return found}
 q('startWizard').onclick=function(){show('brace')};q('backIntro').onclick=function(){show('intro')};q('backBrace').onclick=function(){show('brace')};q('backTransfer').onclick=function(){show('transfer')};
-q('braceDone').onclick=function(){var b=readBrace();if(b){q('braceHeight').value=(isFinite(b.height)?b.height.toLocaleString('de-DE',{maximumFractionDigits:1}):'')+' '+b.unit;q('groupDiameter').value=isFinite(b.diam)?b.diam.toLocaleString('de-DE',{maximumFractionDigits:1})+' mm':'';q('transferMsg').innerHTML='<b>Fistmelen-Ergebnis gefunden.</b><br>Mejor tanda: '+b.series+' · Fistmele '+b.height.toLocaleString('de-DE',{maximumFractionDigits:1})+' '+b.unit+' · Área de agrupación '+b.area.toLocaleString('de-DE',{maximumFractionDigits:2})+' cm² · Ø de agrupación '+b.diam.toLocaleString('de-DE',{maximumFractionDigits:1})+' mm.'}else{q('transferMsg').innerHTML='<b>No se ha encontrado automáticamente ningún resultado guardado.</b><br>Esto puede ocurrir si el archivo se abre localmente o en otro navegador. Los dos valores pueden introducirse manualmente de forma opcional.'}show('transfer')};
-q('goBlank').onclick=function(){var bh=q('braceHeight').value.trim(),gd=q('groupDiameter').value.trim();q('carryInfo').innerHTML='<b>Fase 1 abgeschlossen.</b>'+(bh?'<br>Übernommene optimale Fistmele: <b>'+bh+'</b>.':'')+(gd?'<br>Orientierende Gruppierung aus Fase 1: <b>'+gd+'</b>.':'')+'<br>Der Flecha sin plumas-Tuner ermittelt seine Toleranz jetzt nochmals aus den 3 befiederten Referenzpfeilen.';show('blank')};
-q('blankDone').onclick=function(){var bh=q('braceHeight').value.trim()||'nicht eingetragen',gd=q('groupDiameter').value.trim()||'nicht eingetragen';q('summary').innerHTML='<b>Proceso combinado finalizado.</b><br>Fistmele: '+bh+'<br>Referenz-Gruppendurchmesser aus Fase 1: '+gd+'<br>Nockpunkt/Tiller/Pfeilabstimmung: im Flecha sin plumas-Tuner abgeschlossen.';show('done')};
+q('braceDone').onclick=function(){var b=readBrace();if(b){q('braceHeight').value=(isFinite(b.height)?b.height.toLocaleString('es-ES',{maximumFractionDigits:1}):'')+' '+b.unit;q('groupDiameter').value=isFinite(b.diam)?b.diam.toLocaleString('es-ES',{maximumFractionDigits:1})+' mm':'';q('transferMsg').innerHTML='<b>Resultado de fistmele encontrado.</b><br>Mejor tanda: '+b.series+' · Fistmele '+b.height.toLocaleString('es-ES',{maximumFractionDigits:1})+' '+b.unit+' · Área de agrupación '+b.area.toLocaleString('es-ES',{maximumFractionDigits:2})+' cm² · Ø de agrupación '+b.diam.toLocaleString('es-ES',{maximumFractionDigits:1})+' mm.'}else{q('transferMsg').innerHTML='<b>No se ha encontrado automáticamente ningún resultado guardado.</b><br>Esto puede ocurrir si el archivo se abre localmente o en otro navegador. Los dos valores pueden introducirse manualmente de forma opcional.'}show('transfer')};
+q('goBlank').onclick=function(){var bh=q('braceHeight').value.trim(),gd=q('groupDiameter').value.trim();q('carryInfo').innerHTML='<b>Fase 1 finalizada.</b>'+(bh?'<br>Fistmele óptimo importado: <b>'+bh+'</b>.':'')+(gd?'<br>Agrupación orientativa de la fase 1: <b>'+gd+'</b>.':'')+'<br>El afinador de flecha desnuda volverá a calcular su tolerancia a partir de las 3 flechas emplumadas de referencia.';show('blank')};
+q('blankDone').onclick=function(){var bh=q('braceHeight').value.trim()||'no indicado',gd=q('groupDiameter').value.trim()||'no indicado';q('summary').innerHTML='<b>Proceso combinado finalizado.</b><br>Fistmele: '+bh+'<br>Diámetro de agrupación de referencia de la fase 1: '+gd+'<br>Punto de enfleche/tiller/ajuste de flecha: finalizado en el afinador de flecha desnuda.';show('done')};
 q('restart').onclick=function(){q('braceHeight').value='';q('groupDiameter').value='';show('intro')};show('intro');
 })();
 </script>
