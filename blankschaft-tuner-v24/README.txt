@@ -1,0 +1,1 @@
+Blankschaft Tuner Version 2.4: Touch-Zoom/Markierung wie Standhöhen-App; manuelle Kalibrierung über vier Eckpunkte der Scheibenauflage; automatische Scheibenerkennung als Vorschlag mit manueller Korrektur.
