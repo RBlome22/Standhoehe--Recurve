@@ -1,0 +1,64 @@
+name: Add liability notice to all archery apps
+
+on:
+  push:
+    paths:
+      - '.github/workflows/add-liability-notice.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add German and Spanish liability notices
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          de_files = [
+              Path('index.html'),
+              Path('blankschaft-tuner-v261/index.html'),
+              Path('bogen-setup-assistent/index.html'),
+          ]
+          es_files = [
+              Path('standhoehe-es/index.html'),
+              Path('blankschaft-tuner-es/index.html'),
+              Path('bogen-setup-assistent-es/index.html'),
+          ]
+
+          de_copy = '© 2026 Rainer Blome · r.blome@rainer-blome.de · Alle Rechte vorbehalten.'
+          de_notice = 'Die Benutzung erfolgt auf eigene Gefahr. Für eventuell entstandene Schäden wird keine Haftung übernommen.'
+          es_copy = '© 2026 Rainer Blome · r.blome@rainer-blome.de · Todos los derechos reservados.'
+          es_notice = 'El uso se realiza bajo la propia responsabilidad del usuario. No se asume ninguna responsabilidad por los daños que pudieran producirse.'
+
+          def update(path, copyright_text, notice):
+              text = path.read_text(encoding='utf-8')
+              if notice in text:
+                  print(f'{path}: ya/ bereits vorhanden')
+                  return
+              target = copyright_text
+              replacement = copyright_text + '<br><span>' + notice + '</span>'
+              if target not in text:
+                  raise SystemExit(f'Copyright-Text nicht gefunden: {path}')
+              path.write_text(text.replace(target, replacement), encoding='utf-8')
+              print(f'{path}: aktualisiert')
+
+          for p in de_files:
+              update(p, de_copy, de_notice)
+          for p in es_files:
+              update(p, es_copy, es_notice)
+          PY
+      - name: Commit changes
+        run: |
+          git config user.name "RBlome22"
+          git config user.email "r.blome@rainer-blome.de"
+          git add index.html blankschaft-tuner-v261/index.html bogen-setup-assistent/index.html standhoehe-es/index.html blankschaft-tuner-es/index.html bogen-setup-assistent-es/index.html
+          if git diff --cached --quiet; then
+            echo "Keine Änderungen erforderlich."
+          else
+            git commit -m "Add liability notice to German and Spanish archery apps"
+            git push
+          fi
