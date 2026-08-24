@@ -1,0 +1,49 @@
+name: Add copyright email
+
+on:
+  push:
+    paths:
+      - '.github/workflows/add-copyright-email.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update-copyright:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add email to copyright in all three apps
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          files = [
+              Path('index.html'),
+              Path('blankschaft-tuner-v261/index.html'),
+              Path('bogen-setup-assistent/index.html'),
+          ]
+          old = '© 2026 Rainer Blome · Alle Rechte vorbehalten.'
+          new = '© 2026 Rainer Blome · r.blome@rainer-blome.de · Alle Rechte vorbehalten.'
+
+          for path in files:
+              text = path.read_text(encoding='utf-8')
+              if new in text:
+                  print(f'{path}: bereits aktuell')
+                  continue
+              if old not in text:
+                  raise SystemExit(f'Copyright-Text nicht gefunden: {path}')
+              path.write_text(text.replace(old, new), encoding='utf-8')
+              print(f'{path}: aktualisiert')
+          PY
+      - name: Commit changes
+        run: |
+          git config user.name "RBlome22"
+          git config user.email "r.blome@rainer-blome.de"
+          git add index.html blankschaft-tuner-v261/index.html bogen-setup-assistent/index.html
+          if git diff --cached --quiet; then
+            echo "Keine Änderungen erforderlich."
+          else
+            git commit -m "Add copyright email to all archery apps"
+            git push
+          fi
