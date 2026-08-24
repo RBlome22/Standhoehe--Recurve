@@ -1,0 +1,1 @@
+(function(){'use strict';if(!window.ArcheryEN)return;const original=window.ArcheryEN.translateCombo;window.ArcheryEN.translateCombo=function(text){return original(text).split('https://rblome22.github.io/Standhoehe--Recurve/brace-height-en/bare-shaft-tuner-en/').join('https://rblome22.github.io/Standhoehe--Recurve/bare-shaft-tuner-en/');};})();
