@@ -1,0 +1,364 @@
+name: Build English archery apps
+
+on:
+  push:
+    paths:
+      - '.github/workflows/build-english-apps.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build English versions
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import shutil
+
+          def apply(text, pairs):
+              for old, new in pairs:
+                  text = text.replace(old, new)
+              return text
+
+          # ---------- 1) Brace Height Optimizer ----------
+          src = Path('index.html').read_text(encoding='utf-8')
+          pairs = [
+              ('<html lang="de">','<html lang="en">'),
+              ('<title>Standhöhe Recurve – WhatsApp Schulung</title>','<title>Recurve Brace Height Optimizer</title>'),
+              ('<meta name="apple-mobile-web-app-title" content="Standhöhe Recurve">','<meta name="apple-mobile-web-app-title" content="Brace Height Recurve">'),
+              ('<meta name="application-name" content="Standhöhe Recurve">','<meta name="application-name" content="Brace Height Recurve">'),
+              ('<header><h1>Standhöhe-Optimierer für Recurvebogen – WhatsApp-Schulung</h1><p>Offline-App: Foto laden · Pfeile markieren · Ausreißer streichen · optimale Standhöhe finden</p></header>',
+               '<header><h1>Brace Height Optimizer for Recurve Bows</h1><p>Photo · mark arrow impacts · discard one outlier · determine the optimum brace height</p></header>'),
+              ('<h2>Online-Start über WhatsApp-Link</h2>','<h2>Start online from a WhatsApp link</h2>'),
+              ('Diese Version ist für Netlify oder GitHub Pages vorbereitet. Nach dem Hochladen wird nur der Web-Link per WhatsApp verschickt.\n    Die Teilnehmer öffnen den Link in Safari; dann funktionieren Fotoauswahl, Markierung und Auswertung zuverlässig als Web-App.',
+               'This version is prepared for GitHub Pages. Share only the web link via WhatsApp.\n    Students open the link in Safari; photo selection, marking and evaluation then work as a web app.'),
+              ('<h2>WhatsApp-Hinweis</h2>','<h2>WhatsApp information</h2>'),
+              ('Diese App ist eine vollständige Einzeldatei. Für Schulungen per WhatsApp am besten die ZIP-Datei versenden. Empfänger speichern sie in „Dateien“, entpacken sie und öffnen die HTML-Datei auf dem iPad/iPhone.',
+               'This app is a self-contained HTML file. For training, the web link is the easiest way to share it by WhatsApp.'),
+              ('Die App läuft offline. WhatsApp selbst führt HTML-Dateien meist nicht direkt aus; deshalb bitte über die Dateien-App öffnen.',
+               'The app can also run offline. If an HTML file is shared directly, open it from the Files app on iPad or iPhone.'),
+              ('<h2>1. Grundeinstellungen</h2>','<h2>1. Basic settings</h2>'),
+              ('<label>Schütze</label>','<label>Archer</label>'),
+              ('<label>Bogen / Wurfarme</label>','<label>Bow / limbs</label>'),
+              ('z. B. 68\", 32 lbs','e.g. 68\", 32 lbs'),
+              ('<label>Entfernung</label>','<label>Distance</label>'),
+              ('<label>Einheit</label>','<label>Unit</label>'),
+              ('<label>Serien gesamt</label>','<label>Total ends</label>'),
+              ('<label>Scheibenauflage Durchmesser</label>','<label>Target face diameter</label>'),
+              ('<label>Pfeile je Serie</label>','<label>Arrows per end</label>'),
+              ('<label>Ausreißer</label>','<label>Outlier</label>'),
+              ('kleinste Restfläche','smallest remaining area'),
+              ('weitester Pfeil vom Schwerpunkt','arrow farthest from centroid'),
+              ('<label>Notizen</label>','<label>Notes</label>'),
+              ('Pfeile, Sehne, Button, Tiller, Halle/Wetter usw.','Arrows, string, pressure button, tiller, indoor/outdoor conditions, etc.'),
+              ('<h2>2. Serie erfassen</h2>','<h2>2. Record an end</h2>'),
+              ('<label>Seriennummer</label>','<label>End number</label>'),
+              ('<label>Standhöhe gemessen</label>','<label>Measured brace height</label>'),
+              ('z. B. 22.4','e.g. 22.4'),
+              ('<label>Foto laden</label>','<label>Select photo</label>'),
+              ('<label style="margin-top:8px">Kamera</label>','<label style="margin-top:8px">Camera</label>'),
+              ('Foto laden. Danach linke und rechte Kante der Scheibenauflage antippen. Anschließend die Pfeile antippen.',
+               'Select a photo. Then tap the left and right edge of the target face for calibration. Afterwards mark the arrow impacts.'),
+              ('>Kalibrierung neu<','>Reset calibration<'),
+              ('>Pfeile markieren<','>Mark arrow impacts<'),
+              ('>Letzten Punkt löschen<','>Delete last point<'),
+              ('>Markierungen löschen<','>Clear marks<'),
+              ('>Serie speichern<','>Save end<'),
+              ('Kalibrierung: zwei Punkte auf dem bekannten Scheibendurchmesser setzen, z. B. linker und rechter Rand der 40-cm-Auflage.',
+               'Calibration: mark two points across a known target-face diameter, for example the left and right edge of a 40 cm face.'),
+              ('<h2>3. Messkurve und Ergebnis</h2>','<h2>3. Measurement curve and result</h2>'),
+              ('Noch keine gespeicherten Serien.','No ends saved yet.'),
+              ('>Auswertung drucken<','>Print evaluation<'),
+              ('>CSV exportieren<','>Export CSV<'),
+              ('>JSON sichern<','>Save JSON<'),
+              ('>JSON laden<','>Load JSON<'),
+              ('>Alle Serien löschen<','>Delete all ends<'),
+              ('<h2>4. Serienübersicht</h2>','<h2>4. End overview</h2>'),
+              ('<h2>Versuchsablauf</h2><p>Je Standhöhe werden 6 Pfeile geschossen. Pro Serie wird ein Ausreißer gestrichen. Die App berechnet aus den verbleibenden Treffern die konvexe Gruppenfläche in cm². Die Standhöhe mit dem kleinsten Flächeninhalt wird als optimale Standhöhe markiert.</p>',
+               '<h2>Test procedure</h2><p>Shoot 6 arrows at each brace-height setting. One outlier is discarded from each end. The app calculates the convex group area of the remaining impacts in cm². The brace height with the smallest group area is marked as optimum.</p>'),
+              ('© 2026 Rainer Blome · r.blome@rainer-blome.de · Alle Rechte vorbehalten.<br><span>Die Benutzung erfolgt auf eigene Gefahr. Für eventuell entstandene Schäden wird keine Haftung übernommen.</span>',
+               '© 2026 Rainer Blome · r.blome@rainer-blome.de · All rights reserved.<br><span>Use at your own risk. No liability is accepted for any damage that may occur.</span>'),
+              ('"Foto kann nicht dargestellt werden"','"The photo cannot be displayed"'),
+              ('"Foto laden oder mit Kamera aufnehmen"','"Select a photo or take one with the camera"'),
+              ('`Aktuelle Serie: ${state.arrows.length} Pfeile, Ausreißer Pfeil ${drop+1}, Fläche ${res.areaCm2.toFixed(2)} cm², Gruppendurchmesser ${res.groupDiameterMm.toFixed(1)} mm.`',
+               '`Current end: ${state.arrows.length} arrows, outlier arrow ${drop+1}, area ${res.areaCm2.toFixed(2)} cm², group diameter ${res.groupDiameterMm.toFixed(1)} mm.`'),
+              ('"Foto sichtbar geladen. Bitte zwei Kalibrierpunkte setzen."','"Photo loaded. Please mark two calibration points."'),
+              ('`Kalibrierung vorhanden. Bitte Pfeile markieren. Aktuell: ${state.arrows.length}.`','`Calibration set. Please mark arrow impacts. Current: ${state.arrows.length}.`'),
+              ('"Foto wird geladen ..."','"Loading photo ..."'),
+              ('"Foto konnte nicht dargestellt werden. Bitte JPG/PNG wählen."','"The photo could not be displayed. Please choose JPG or PNG."'),
+              ('"Foto konnte nicht gelesen werden."','"The photo could not be read."'),
+              ('`Bereits ${max} Pfeile markiert.`','`Already ${max} arrows marked.`'),
+              ('"Kalibrierung neu: zwei Kanten der Scheibenauflage antippen."','"Reset calibration: tap two opposite edges of the target face."'),
+              ('"Pfeile markieren."','"Mark arrow impacts."'),
+              ('`Bitte Kalibrierung setzen und ${need} Pfeile markieren.`','`Please set the calibration and mark ${need} arrows.`'),
+              ('"Bitte Standhöhe eintragen."','"Please enter the brace height."'),
+              ('"Serie gespeichert. Nächste Standhöhe schießen und neues Foto laden."','"End saved. Shoot the next brace-height setting and load a new photo."'),
+              ('"Fläche cm²"','"Area cm²"'),
+              ('"Noch keine Messwerte"','"No measurements yet"'),
+              ('"★ optimal"','"★ optimum"'),
+              ('"<p class=\'hint\'>Noch keine Serien gespeichert.</p>"','"<p class=\'hint\'>No ends saved yet.</p>"'),
+              ('<th>Serie</th><th>Standhöhe</th><th>Fläche</th><th>Gruppen-Ø</th><th>gestrichen</th><th>Datum</th><th class=\'noPrint\'>Aktion</th>',
+               '<th>End</th><th>Brace height</th><th>Area</th><th>Group Ø</th><th>discarded</th><th>Date</th><th class=\'noPrint\'>Action</th>'),
+              ('<span class="pill">optimal</span>','<span class="pill">optimum</span>'),
+              ('Pfeil ${s.droppedArrow}','Arrow ${s.droppedArrow}'),
+              ('>löschen<','>delete<'),
+              ('`Optimale Standhöhe: <b>${b.braceHeight.toFixed(1)} ${b.braceUnit}</b> mit <b>${b.areaCm2.toFixed(2)} cm²</b>. Gestrichen wurde Pfeil ${b.droppedArrow}.`',
+               '`Optimum brace height: <b>${b.braceHeight.toFixed(1)} ${b.braceUnit}</b> with <b>${b.areaCm2.toFixed(2)} cm²</b>. Arrow ${b.droppedArrow} was discarded.`'),
+              ('"JSON konnte nicht gelesen werden."','"The JSON file could not be read."'),
+              ('"Alle gespeicherten Serien löschen?"','"Delete all saved ends?"'),
+              ('toLocaleString("de-DE")','toLocaleString("en-GB")'),
+              ('toLocaleString(\'de-DE\'','toLocaleString(\'en-GB\''),
+          ]
+          brace = apply(src, pairs)
+          out = Path('brace-height-en')
+          out.mkdir(exist_ok=True)
+          (out/'index.html').write_text(brace, encoding='utf-8')
+          if Path('manifest.webmanifest').exists():
+              shutil.copy2('manifest.webmanifest', out/'manifest.webmanifest')
+          if Path('icons').exists():
+              shutil.copytree('icons', out/'icons', dirs_exist_ok=True)
+
+          # ---------- 2) Bare Shaft Tuner ----------
+          src = Path('blankschaft-tuner-v261/index.html').read_text(encoding='utf-8')
+          pairs = [
+              ('<html lang="de">','<html lang="en">'),
+              ('<title>Blankschaft Tuner v2.6</title>','<title>Bare Shaft Tuner v2.6</title>'),
+              ('<header><b>Blankschaft Tuner</b><span>Version 2.6 · schützengerechter Zielbereich · 3 befiedert + 3 blank · lernende Feinkorrektur</span></header>',
+               '<header><b>Bare Shaft Tuner</b><span>Version 2.6 · archer-adapted target zone · 3 fletched + 3 bare shafts · adaptive fine tuning</span></header>'),
+              ('<h2>Bogen anlegen</h2>','<h2>Set up the bow</h2>'),
+              ('Die Auswertung erfolgt ausschließlich über die Trefferpunkte in der Scheibenebene. Nockprojektion und Aufnahmeabstand beeinflussen die Spine-Auswertung damit nicht mehr.',
+               'The evaluation uses only impact points in the target plane. Nock projection and camera distance therefore no longer affect the spine evaluation.'),
+              ('<label>Art der Einstellung</label>','<label>Type of tuning</label>'),
+              ('>Neue Einstellung<','>New setup<'),
+              ('>Korrektur der vorhandenen Einstellung<','>Correction of current setup<'),
+              ('<label>Schütze</label>','<label>Handedness</label>'),
+              ('>Rechtshand<','>Right-handed<'),
+              ('>Linkshand<','>Left-handed<'),
+              ('<label>Bogenart</label>','<label>Bow type</label>'),
+              ('>Olympischer Recurve<','>Olympic recurve<'),
+              ('>Blankbogen<','>Barebow<'),
+              ('<label>Scheibenauflage</label>','<label>Target face</label>'),
+              ('<label>Pfeillänge (optional, mm)</label>','<label>Arrow length (optional, mm)</label>'),
+              ('z. B. 720','e.g. 720'),
+              ('<label>Spinewert (optional)</label>','<label>Spine value (optional)</label>'),
+              ('z. B. 600','e.g. 600'),
+              ('<label>Maximal zulässige Umdrehungen heraus</label>','<label>Maximum permitted turns out</label>'),
+              ('z. B. 4','e.g. 4'),
+              ('<label>Bogenname (optional)</label>','<label>Bow name (optional)</label>'),
+              ('>Weiter zur Startstellung<','>Continue to starting position<'),
+              ('<h2>Startstellung</h2>','<h2>Starting position</h2>'),
+              ('<b>Nur am entspannten Bogen verstellen.</b> Herstellergrenzen haben immer Vorrang.',
+               '<b>Make adjustments only with the bow unstrung or fully relaxed.</b> Manufacturer limits always take priority.'),
+              ('>Zurück<','>Back<'),
+              ('>Startstellung hergestellt – Messserie beginnen<','>Starting position set – begin measurement series<'),
+              ('<h2>1. Befiederte Referenzgruppe</h2>','<h2>1. Fletched reference group</h2>'),
+              ('<b>3 befiederte Pfeile auf 16 m</b> schießen. Danach die drei Treffer in einem Foto erfassen.',
+               'Shoot <b>3 fletched arrows at 16 m</b>. Then record the three impacts in one photo.'),
+              ('>Foto auswählen<','>Select photo<'),
+              ('>Kamera aufnehmen<','>Take photo<'),
+              ('<h2>2. Blankschaftgruppe</h2>','<h2>2. Bare-shaft group</h2>'),
+              ('<b>3 Blankschäfte auf 16 m</b> schießen. Die befiederten Pfeile dürfen vorher gezogen werden. Dieses Foto wird separat über die Scheibenecken entzerrt.',
+               'Shoot <b>3 bare shafts at 16 m</b>. The fletched arrows may be removed first. This photo is corrected separately using the target-face corners.'),
+              ('<h2 id="markTitle">Foto markieren</h2>','<h2 id="markTitle">Mark photo</h2>'),
+              ('Scheibenecken werden automatisch vorgeschlagen. Gelben Rahmen prüfen; wenn nötig manuell neu setzen.',
+               'The target-face corners are proposed automatically. Check the yellow frame and reset the corners manually if necessary.'),
+              ('1 Finger: markieren · 2 Finger: zoomen · bei Zoom mit 1 Finger verschieben · Markieren funktioniert auch im Zoom',
+               '1 finger: mark · 2 fingers: zoom · when zoomed, drag with 1 finger · marking also works while zoomed'),
+              ('>Scheibe automatisch erkennen<','>Detect target automatically<'),
+              ('>Eckpunkte manuell neu<','>Reset corners manually<'),
+              ('>Zoom zurücksetzen<','>Reset zoom<'),
+              ('>Letzten Punkt löschen<','>Delete last point<'),
+              ('>Alle Markierungen löschen<','>Clear all marks<'),
+              ('>3 Treffer übernehmen<','>Accept 3 impacts<'),
+              ('Manuelle Reihenfolge: <b>oben links → oben rechts → unten rechts → unten links</b>, danach Treffer 1–3.',
+               'Manual order: <b>top left → top right → bottom right → bottom left</b>, then impacts 1–3.'),
+              ('<h2>Auswertung der beiden Gruppen</h2>','<h2>Evaluation of both groups</h2>'),
+              ('>Messserie wiederholen<','>Repeat measurement series<'),
+              ('>Nockpunkt korrigiert – neu messen<','>Nocking point adjusted – measure again<'),
+              ('>Schrauben verstellt – neu messen<','>Limb bolts adjusted – measure again<'),
+              ('>Optimale Einstellung übernehmen<','>Accept optimum setting<'),
+              ('<h2>Abstimmung abgeschlossen</h2>','<h2>Tuning completed</h2>'),
+              ('>Neuen Test beginnen<','>Start a new test<'),
+              ('© 2026 Rainer Blome · r.blome@rainer-blome.de · Alle Rechte vorbehalten.<br><span>Die Benutzung erfolgt auf eigene Gefahr. Für eventuell entstandene Schäden wird keine Haftung übernommen.</span>',
+               '© 2026 Rainer Blome · r.blome@rainer-blome.de · All rights reserved.<br><span>Use at your own risk. No liability is accepted for any damage that may occur.</span>'),
+              ("var names=['Bogen','Start','Befiedert','Blank','Markieren','Auswertung','Fertig'];", "var names=['Bow','Start','Fletched','Bare shafts','Mark','Evaluation','Done'];"),
+              ("var markNames=['Ecke oben links','Ecke oben rechts','Ecke unten rechts','Ecke unten links','Treffer 1','Treffer 2','Treffer 3'];", "var markNames=['Top-left corner','Top-right corner','Bottom-right corner','Bottom-left corner','Impact 1','Impact 2','Impact 3'];"),
+              ("toLocaleString('de-DE'", "toLocaleString('en-GB'"),
+              ("var side=state.hand==='right'?'links':'rechts';return '<b>Grundziel '+(state.hand==='right'?'Rechtshand':'Linkshand')+':</b> Blankschäfte leicht <b>'+side+'</b> und leicht <b>tiefer</b> als die befiederte Gruppe. Die konkrete zulässige Zielfläche wird aus der gemessenen Gruppierung des Schützen angepasst.'",
+               "var side=state.hand==='right'?'left':'right';return '<b>Base target for '+(state.hand==='right'?'right-handed':'left-handed')+' archer:</b> bare shafts slightly <b>'+side+'</b> and slightly <b>lower</b> than the fletched group. The permitted target zone is adapted to the measured grouping of the archer.'"),
+              ("quality=avg<=25?'hoch':avg<=50?'mittel':avg<=75?'angepasst':'eingeschränkt'", "quality=avg<=25?'high':avg<=50?'medium':avg<=75?'adapted':'limited'"),
+              ("correction?'<b>Korrektur:</b> Die aktuelle Schraubenstellung ist intern 0°. Zusätzliches Herausdrehen ist höchstens <b>+360° (= 1 Umdrehung)</b> erlaubt. Hineindrehen darf weitergeführt werden, solange die mechanische Herstellergrenze eingehalten wird.':'<b>Neue Einstellung:</b> Startstellung wird definiert hergestellt. Die absolute Herstellergrenze für das Herausdrehen muss angegeben werden.'",
+               "correction?'<b>Correction:</b> The current limb-bolt position is treated internally as 0°. Additional turning out is limited to <b>+360° (= 1 turn)</b>. Turning in may continue as long as the manufacturer’s mechanical limit is respected.':'<b>New setup:</b> A defined starting position is established. Enter the manufacturer’s absolute limit for turning the limb bolts out.'"),
+              ("q('targetInfo').innerHTML='<b>Zielbereich:</b> '+(hand==='right'?'Rechtshand → Blankschäfte leicht links und leicht tiefer.':'Linkshand → Blankschäfte leicht rechts und leicht tiefer.')",
+               "q('targetInfo').innerHTML='<b>Target zone:</b> '+(hand==='right'?'Right-handed → bare shafts slightly left and slightly lower.':'Left-handed → bare shafts slightly right and slightly lower.')"),
+              ("e.textContent='Bitte die maximal zulässigen Umdrehungen laut Hersteller eintragen.'", "e.textContent='Please enter the maximum number of turns out permitted by the manufacturer.'"),
+              ("'<div class=\"notice\"><b>Korrektur:</b> Die vorhandene Einstellung nicht verändern. Sie gilt als Ausgang 0°. Heraus höchstens +1 Umdrehung; hinein nach Bedarf bis zur mechanisch zulässigen Grenze.</div>'",
+               "'<div class=\"notice\"><b>Correction:</b> Do not change the current setup. It is the 0° starting point. Turn out by no more than +1 turn; turn in as required up to the mechanically permitted limit.</div>'"),
+              ('<b>Olympischer Recurve:</b><ol><li>Beide Tillerschrauben vorsichtig ganz eindrehen.</li><li>Obere Tillerschraube <b>1 Umdrehung heraus</b>.</li><li>Untere Schraube bleibt eingedreht.</li></ol>Weitere Zuggewichtskorrekturen erfolgen anschließend an beiden Schrauben gleichmäßig.',
+               '<b>Olympic recurve:</b><ol><li>Carefully turn both limb bolts fully in to their mechanical stop without tightening them hard.</li><li>Turn the upper limb bolt <b>1 full turn out</b>.</li><li>Leave the lower limb bolt fully in.</li></ol>All further draw-weight corrections are made equally on both limb bolts.'),
+              ('<b>Blankbogen:</b> Beide Tillerschrauben vorsichtig ganz eindrehen. Diese gleichmäßige Stellung ist der Ausgang.',
+               '<b>Barebow:</b> Carefully turn both limb bolts fully in to their mechanical stop without tightening them hard. This equal position is the starting point.'),
+              ("kind==='fletched'?'Befiederte Treffer markieren':'Blankschaft-Treffer markieren'", "kind==='fletched'?'Mark fletched impacts':'Mark bare-shaft impacts'"),
+              ("q('autoStatus').textContent='Automatischer Vorschlag gesetzt. Gelben Rahmen prüfen. Wenn er nicht exakt an der Auflage liegt, „Eckpunkte manuell neu“ wählen.'", "q('autoStatus').textContent='Automatic proposal set. Check the yellow frame. If it does not exactly match the target face, choose “Reset corners manually”.'"),
+              ("q('autoStatus').textContent='Manuelle Eckpunkte: oben links → oben rechts → unten rechts → unten links.'", "q('autoStatus').textContent='Manual corners: top left → top right → bottom right → bottom left.'"),
+              ("var next=pts.length<7?markNames[pts.length]:'Alle Markierungen gesetzt'", "var next=pts.length<7?markNames[pts.length]:'All marks set'"),
+              ("'<b>Alle Markierungen gesetzt.</b>'", "'<b>All marks set.</b>'"),
+              ("throw Error('Es fehlen Markierungen')", "throw Error('Some marks are missing')"),
+              ("alert('Bitte Markierungen prüfen: '+e.message)", "alert('Please check the marks: '+e.message)"),
+              ("throw Error('Eckpunkte ungünstig')", "throw Error('Corner geometry is unsuitable')"),
+              ("'<div class=\"metric\">Horizontal<b>'", "'<div class=\"metric\">Horizontal<b>'"),
+              ("'im persönlichen Bereich':'Korrektur'", "'within personal zone':'correction needed'"),
+              ("'im persönlichen Bereich':'Nock prüfen'", "'within personal zone':'check nocking point'"),
+              ("'<div class=\"metric\">Messgenauigkeit<b>'", "'<div class=\"metric\">Measurement precision<b>'"),
+              ("'Ø Referenzstreuung '", "'Ø reference spread '"),
+              ("'<div class=\"notice\"><b>Schützenangepasste Zielfläche:</b><br>Horizontal steifwärts ca. <b>'", "'<div class=\"notice\"><b>Archer-adapted target zone:</b><br>Horizontal, toward the stiff side, approx. <b>'"),
+              ("' mm</b> · vertikal ca. <b>'", "' mm</b> · vertical approx. <b>'"),
+              ("' relativ zur befiederten Gruppe.<br><span class=\"small muted\">Der Mittelpunkt bleibt bei leicht steif / leicht tief. Nur die Toleranz wird an die aktuelle Gruppierung angepasst.</span></div>'",
+               "' relative to the fletched group.<br><span class=\"small muted\">The centre remains slightly stiff and slightly low. Only the tolerance is adapted to the current grouping.</span></div>'"),
+              ('<th></th><th>X</th><th>Y</th><th>Gruppenstreuung</th>','<th></th><th>X</th><th>Y</th><th>Group spread</th>'),
+              ('<td>Befiedert</td>','<td>Fletched</td>'),
+              ('<td>Blank</td>','<td>Bare shafts</td>'),
+              ('<b>Pfeildaten:</b>','<b>Arrow data:</b>'),
+              ("' mm':'Länge –'", "' mm':'Length –'"),
+              ("'Spine '+state.arrowSpine:'Spine –'", "'Spine '+state.arrowSpine:'Spine –'"),
+              ('<b>Messgenauigkeit derzeit eingeschränkt.</b> Die befiederte Gruppe ist sehr groß. Die App verwendet deshalb einen größeren persönlichen Zielbereich und vermeidet sehr kleine Feinkorrekturen. Für eine noch genauere Einstellung die Serie möglichst ruhig wiederholen.',
+               '<b>Measurement precision is currently limited.</b> The fletched group is very large. The app therefore uses a wider personal target zone and avoids very small fine adjustments. For a more precise setup, repeat the series as consistently as possible.'),
+              ("var dir=m.dy<t.cy?'anheben':'absenken'", "var dir=m.dy<t.cy?'raise':'lower'"),
+              ('<b>Zuerst Nockpunkt:</b> Die vertikale Lage liegt außerhalb der an diesen Schützen angepassten Zielfläche. Nockpunkt eine kleine Stufe <b>',
+               '<b>Nocking point first:</b> The vertical position is outside this archer’s adapted target zone. Move the nocking point one small step <b>'),
+              ('</b> und beide Gruppen neu schießen.','</b> and shoot both groups again.'),
+              ("var r=recommendedTiller(),word=r.dir>0?'herausdrehen':'hineindrehen'", "var r=recommendedTiller(),word=r.dir>0?'turn out':'turn in'"),
+              ('<b>Grenze erreicht.</b> In der Korrektur ist maximal +1 Umdrehung heraus erlaubt.',
+               '<b>Limit reached.</b> In correction mode, a maximum of +1 turn out is permitted.'),
+              ("'Aus den bisherigen Messungen und der persönlichen Gruppierung berechnet.':'Lernschritt; nach weiteren Messungen wird der Winkel feiner berechnet.'",
+               "'Calculated from the previous measurements and the personal grouping.':'Learning step; after further measurements the angle will be calculated more precisely.'"),
+              ('<b>Seitliche Abstimmung noch außerhalb des persönlichen Zielbereichs.</b><br>Beide Tillerschrauben jetzt <b>',
+               '<b>Lateral tuning is still outside the personal target zone.</b><br>Now adjust both limb bolts by <b>'),
+              ('<b>Schützenangepasster Optimalbereich erreicht.</b><br>Diese Einstellung ist an die gemessene Gruppierung dieses Schützen angepasst. Zur Bestätigung folgt nur noch ein kleiner Kontrollschritt: beide Schrauben <b>',
+               '<b>Archer-adapted optimum zone reached.</b><br>This setting is adapted to this archer’s measured grouping. For confirmation, make only one small verification step: both limb bolts <b>'),
+              ('</b>. Danach beide Gruppen nochmals schießen.','</b>. Then shoot both groups again.'),
+              ('<b>Schützenangepasster Optimalbereich erreicht.</b><br>Diese Einstellung ist an die gemessene Gruppierung dieses Schützen angepasst.',
+               '<b>Archer-adapted optimum zone reached.</b><br>This setting is adapted to this archer’s measured grouping.'),
+              ('<b>Optimalpunkt bestätigt.</b><br>Jetzt nur die letzte Veränderung zurücknehmen: beide Tillerschrauben <b>',
+               '<b>Optimum confirmed.</b><br>Now reverse only the last adjustment: both limb bolts <b>'),
+              ('</b>. Danach ist die für diesen Schützen ermittelte optimale Einstellung wieder hergestellt.',
+               '</b>. The optimum setting determined for this archer is then restored.'),
+              ('<h3>Messverlauf</h3>','<h3>Measurement history</h3>'),
+              ("'. intern '", "'. internal '"),
+              ("' · vertikal '", "' · vertical '"),
+              ("state.pendingAdjustment.dir==='anheben'?1:-1", "state.pendingAdjustment.dir==='raise'?1:-1"),
+              ("alert('Herstellergrenze würde überschritten. Nicht weiter herausdrehen.')", "alert('The manufacturer limit would be exceeded. Do not turn the limb bolts out any further.')"),
+              ('<b>Vor Abschluss:</b> Beide Tillerschrauben noch <b>', '<b>Before finishing:</b> Adjust both limb bolts by <b>'),
+              ('</b>, um exakt zur gespeicherten optimalen Stellung zurückzukehren.','</b> to return exactly to the stored optimum position.'),
+              ('<b>Optimale Einstellung ist wieder hergestellt.</b>','<b>The optimum setting has been restored.</b>'),
+              ('<b>Schützenangepasste Abstimmung.</b> Diese Einstellung wurde anhand der gemessenen Gruppierung und Wiederholgenauigkeit dieses Schützen ermittelt.',
+               '<b>Archer-adapted tuning.</b> This setting was determined from this archer’s measured grouping and repeatability.'),
+              ('<div class="metric">Ziel horizontal<b>','<div class="metric">Target horizontal<b>'),
+              ('<div class="metric">Ziel vertikal<b>','<div class="metric">Target vertical<b>'),
+              ('<div class="metric">Nockkorrektur<b>','<div class="metric">Nocking-point correction<b>'),
+              (' Schritte</b>',' steps</b>'),
+              ('<b>Test beendet.</b> Die derzeit mögliche Einstellung übernehmen.','<b>Test ended.</b> Use the best setting currently achievable.'),
+              ("back>0?'hineindrehen':'herausdrehen'", "back>0?'turn in':'turn out'"),
+              ("dir>0?'heraus':'hinein'", "dir>0?'out':'in'"),
+          ]
+          bare = apply(src, pairs)
+          out = Path('bare-shaft-tuner-en')
+          out.mkdir(exist_ok=True)
+          (out/'index.html').write_text(bare, encoding='utf-8')
+
+          # ---------- 3) Combined Beginner Assistant ----------
+          src = Path('bogen-setup-assistent/index.html').read_text(encoding='utf-8')
+          pairs = [
+              ('<html lang="de">','<html lang="en">'),
+              ('<title>Bogen-Setup Assistent</title>','<title>Bow Setup Assistant</title>'),
+              ('<header><b>Bogen-Setup Assistent</b><span>Für Anfänger: zuerst Standhöhe, danach Blankschaft / Nockpunkt / Tiller</span></header>',
+               '<header><b>Bow Setup Assistant</b><span>For beginners: brace height first, then bare shaft / nocking point / tiller</span></header>'),
+              ('<h1>Bogen schrittweise einstellen</h1>','<h1>Set up the bow step by step</h1>'),
+              ('Dieses dritte Programm verbindet die beiden vorhandenen Programme zu einem geführten Ablauf. <b>Die Einzelprogramme bleiben eigenständig erhalten.</b>',
+               'This third program combines the two individual tools into one guided process. <b>The individual programs remain available separately.</b>'),
+              ('<b>Empfohlene Reihenfolge:</b><br>1. Standhöhe optimieren und eine reproduzierbare Gruppierung erreichen.<br>2. Danach Nockpunkt und dynamische Pfeilabstimmung mit 3 befiederten Pfeilen + 3 Blankschäften durchführen.',
+               '<b>Recommended order:</b><br>1. Optimize brace height and achieve a repeatable group.<br>2. Then tune the nocking point and dynamic arrow reaction using 3 fletched arrows + 3 bare shafts.'),
+              ('Phase 1<b>Standhöhe</b><span class="muted">Gruppenfläche minimieren</span>', 'Phase 1<b>Brace height</b><span class="muted">Minimize group area</span>'),
+              ('Phase 2<b>Blankschaft</b><span class="muted">Nockpunkt + Tiller/Zuggewicht</span>', 'Phase 2<b>Bare shaft</b><span class="muted">Nocking point + tiller/draw weight</span>'),
+              ('Ziel<b>Anfängerfreundlich</b><span class="muted">Toleranz an Gruppierung angepasst</span>', 'Goal<b>Beginner-friendly</b><span class="muted">Tolerance adapted to grouping</span>'),
+              ('>Kombinierte Einstellung starten<','>Start combined setup<'),
+              ('href="https://rblome22.github.io/Standhoehe--Recurve/" target="_blank">Nur Standhöhe öffnen', 'href="https://rblome22.github.io/Standhoehe--Recurve/brace-height-en/" target="_blank">Open brace height only'),
+              ('href="https://rblome22.github.io/Standhoehe--Recurve/blankschaft-tuner-v261/" target="_blank">Nur Blankschaft öffnen', 'href="https://rblome22.github.io/Standhoehe--Recurve/bare-shaft-tuner-en/" target="_blank">Open bare-shaft tuner only'),
+              ('<h2>Phase 1 – Standhöhe optimieren</h2>','<h2>Phase 1 – Optimize brace height</h2>'),
+              ('Führe die Standhöhenmessung vollständig durch. Danach unten auf <b>„Standhöhe abgeschlossen“</b> drücken. Wenn die App im gleichen Browser läuft, versucht der Assistent das beste Ergebnis automatisch zu übernehmen.',
+               'Complete the brace-height measurement. Then press <b>“Brace height completed”</b> below. When both apps run in the same browser, the assistant will try to import the best result automatically.'),
+              ('title="Standhöhen-Optimierer" src="https://rblome22.github.io/Standhoehe--Recurve/"', 'title="Brace Height Optimizer" src="https://rblome22.github.io/Standhoehe--Recurve/brace-height-en/"'),
+              ('>Standhöhe abgeschlossen – Ergebnis übernehmen<','>Brace height completed – import result<'),
+              ('>Zur Übersicht<','>Back to overview<'),
+              ('<h2>Zwischenergebnis</h2>','<h2>Intermediate result</h2>'),
+              ('<label>Optimale Standhöhe (optional)</label>','<label>Optimum brace height (optional)</label>'),
+              ('z. B. 22,4 cm','e.g. 22.4 cm'),
+              ('<label>Gruppendurchmesser bei bester Serie (optional)</label>','<label>Group diameter of best end (optional)</label>'),
+              ('z. B. 85 mm','e.g. 85 mm'),
+              ('<b>Hinweis:</b> Der Gruppendurchmesser dient hier nur als Orientierung für den Leistungsstand. Der Blankschaft-Tuner bestimmt seine persönliche Toleranz anschließend neu aus der aktuellen befiederten Referenzgruppe.',
+               '<b>Note:</b> The group diameter is used only as an indication of current repeatability. The bare-shaft tuner recalculates the personal tolerance from the current fletched reference group.'),
+              ('>Weiter zur Blankschaft-Abstimmung<','>Continue to bare-shaft tuning<'),
+              ('>Zurück zur Standhöhe<','>Back to brace height<'),
+              ('<h2>Phase 2 – Blankschaft, Nockpunkt und Tiller</h2>','<h2>Phase 2 – Bare shaft, nocking point and tiller</h2>'),
+              ('title="Blankschaft Tuner" src="https://rblome22.github.io/Standhoehe--Recurve/blankschaft-tuner-v261/"', 'title="Bare Shaft Tuner" src="https://rblome22.github.io/Standhoehe--Recurve/bare-shaft-tuner-en/"'),
+              ('>Abstimmung abgeschlossen<','>Tuning completed<'),
+              ('>Zurück zum Zwischenergebnis<','>Back to intermediate result<'),
+              ('<h2>Bogen-Setup abgeschlossen</h2>','<h2>Bow setup completed</h2>'),
+              ('<b>Schützenangepasste Einstellung:</b> Die Blankschaft-Abstimmung berücksichtigt die aktuelle Gruppierung des Schützen. Bei später deutlich verbesserter Schießtechnik empfiehlt sich eine erneute Korrektur.',
+               '<b>Archer-adapted setup:</b> The bare-shaft tuning takes the archer’s current grouping into account. If shooting technique and repeatability improve significantly later, repeat the correction.'),
+              ('>Neuen Ablauf starten<','>Start a new setup<'),
+              ('href="https://rblome22.github.io/Standhoehe--Recurve/" target="_blank">Standhöhe einzeln', 'href="https://rblome22.github.io/Standhoehe--Recurve/brace-height-en/" target="_blank">Brace height only'),
+              ('href="https://rblome22.github.io/Standhoehe--Recurve/blankschaft-tuner-v261/" target="_blank">Blankschaft einzeln', 'href="https://rblome22.github.io/Standhoehe--Recurve/bare-shaft-tuner-en/" target="_blank">Bare shaft only'),
+              ('© 2026 Rainer Blome · r.blome@rainer-blome.de · Alle Rechte vorbehalten.<br><span>Die Benutzung erfolgt auf eigene Gefahr. Für eventuell entstandene Schäden wird keine Haftung übernommen.</span>',
+               '© 2026 Rainer Blome · r.blome@rainer-blome.de · All rights reserved.<br><span>Use at your own risk. No liability is accepted for any damage that may occur.</span>'),
+              ("names=['Übersicht','Standhöhe','Übernahme','Blankschaft','Fertig']", "names=['Overview','Brace height','Import','Bare shaft','Done']"),
+              ("toLocaleString('de-DE'", "toLocaleString('en-GB'"),
+              ("'<b>Standhöhen-Ergebnis gefunden.</b><br>Beste Serie: '", "'<b>Brace-height result found.</b><br>Best end: '"),
+              ("' · Standhöhe '", "' · Brace height '"),
+              ("' · Gruppenfläche '", "' · Group area '"),
+              ("' · Gruppen-Ø '", "' · Group Ø '"),
+              ("'<b>Kein gespeichertes Ergebnis automatisch gefunden.</b><br>Das kann bei lokal geöffneter Datei oder anderem Browser vorkommen. Die beiden Werte können unten optional von Hand eingetragen werden.'",
+               "'<b>No saved result was found automatically.</b><br>This can happen with a locally opened file or a different browser. The two values can be entered manually below.'"),
+              ("'<b>Phase 1 abgeschlossen.</b>'", "'<b>Phase 1 completed.</b>'"),
+              ("'<br>Übernommene optimale Standhöhe: <b>'", "'<br>Imported optimum brace height: <b>'"),
+              ("'<br>Orientierende Gruppierung aus Phase 1: <b>'", "'<br>Reference grouping from phase 1: <b>'"),
+              ("'<br>Der Blankschaft-Tuner ermittelt seine Toleranz jetzt nochmals aus den 3 befiederten Referenzpfeilen.'",
+               "'<br>The bare-shaft tuner now recalculates its tolerance from the 3 fletched reference arrows.'"),
+              ("||'nicht eingetragen'", "||'not entered'"),
+              ("'<b>Kombinierter Ablauf abgeschlossen.</b><br>Standhöhe: '", "'<b>Combined setup completed.</b><br>Brace height: '"),
+              ("'<br>Referenz-Gruppendurchmesser aus Phase 1: '", "'<br>Reference group diameter from phase 1: '"),
+              ("'<br>Nockpunkt/Tiller/Pfeilabstimmung: im Blankschaft-Tuner abgeschlossen.'",
+               "'<br>Nocking point/tiller/arrow tuning: completed in the bare-shaft tuner.'"),
+          ]
+          combo = apply(src, pairs)
+          out = Path('bow-setup-assistant-en')
+          out.mkdir(exist_ok=True)
+          (out/'index.html').write_text(combo, encoding='utf-8')
+
+          # ---------- English download / start page ----------
+          portal = '''<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Archery Tuning Apps – English</title>
+<style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#f3f6f4;color:#17231e;margin:0}main{max-width:850px;margin:auto;padding:24px}.card{background:#fff;border:1px solid #d7e0db;border-radius:18px;padding:20px;margin:14px 0}.buttons{display:flex;gap:10px;flex-wrap:wrap}.btn{display:inline-block;text-decoration:none;padding:12px 16px;border-radius:12px;background:#0b6b4b;color:#fff;font-weight:700}.secondary{background:#e6eeea;color:#173d32}footer{text-align:center;color:#66736d;font-size:12px;padding:20px}</style></head><body><main>
+<h1>Archery Tuning Apps – English</h1><p>Three separate tools. The Bow Setup Assistant is recommended for beginners.</p>
+<div class="card"><h2>1. Brace Height Optimizer</h2><p>Determine the brace height that produces the smallest group area.</p><div class="buttons"><a class="btn" href="../brace-height-en/">Open online</a><a class="btn secondary" href="../brace-height-en/index.html" download="Brace_Height_Optimizer_EN.html">Download HTML</a></div></div>
+<div class="card"><h2>2. Bare Shaft Tuner</h2><p>Tune nocking point, dynamic spine response and limb-bolt adjustment using 3 fletched arrows and 3 bare shafts.</p><div class="buttons"><a class="btn" href="../bare-shaft-tuner-en/">Open online</a><a class="btn secondary" href="../bare-shaft-tuner-en/index.html" download="Bare_Shaft_Tuner_EN.html">Download HTML</a></div></div>
+<div class="card"><h2>3. Bow Setup Assistant</h2><p>Guided beginner workflow: brace height first, then bare shaft / nocking point / tiller.</p><div class="buttons"><a class="btn" href="../bow-setup-assistant-en/">Open online</a><a class="btn secondary" href="../bow-setup-assistant-en/index.html" download="Bow_Setup_Assistant_EN.html">Download HTML</a></div></div>
+</main><footer>© 2026 Rainer Blome · r.blome@rainer-blome.de · All rights reserved.<br>Use at your own risk. No liability is accepted for any damage that may occur.</footer></body></html>'''
+          Path('english').mkdir(exist_ok=True)
+          Path('english/index.html').write_text(portal, encoding='utf-8')
+          PY
+      - name: Commit English apps
+        run: |
+          git config user.name "RBlome22"
+          git config user.email "r.blome@rainer-blome.de"
+          git add brace-height-en bare-shaft-tuner-en bow-setup-assistant-en english
+          if git diff --cached --quiet; then
+            echo "No changes required."
+          else
+            git commit -m "Add English archery tuning apps and download page"
+            git push
+          fi
