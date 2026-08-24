@@ -20,45 +20,45 @@
 <p>This third program combines the two individual tools into one guided process. <b>The individual programs remain available separately.</b></p>
 <div class="notice blue"><b>Recommended order:</b><br>1. Optimize brace height and achieve a repeatable group.<br>2. Then tune the nocking point and dynamic arrow reaction using 3 fletched arrows + 3 bare shafts.</div>
 <div class="grid"><div class="metric">Phase 1<b>Brace height</b><span class="muted">Minimize group area</span></div><div class="metric">Phase 2<b>Bare shaft</b><span class="muted">Nocking point + tiller/draw weight</span></div><div class="metric">Goal<b>Beginner-friendly</b><span class="muted">Tolerance adapted to grouping</span></div></div>
-<div class="actions"><button class="primary" id="startWizard">Start combined setup</button><a class="btn secondary" href="https://rblome22.github.io/Standhoehe--Recurve/brace-height-en/" target="_blank">Nur Brace height öffnen</a><a class="btn secondary" href="https://rblome22.github.io/Standhoehe--Recurve/bare-shaft-tuner-en/" target="_blank">Nur Bare shaft öffnen</a></div>
+<div class="actions"><button class="primary" id="startWizard">Start combined setup</button><a class="btn secondary" href="https://rblome22.github.io/Standhoehe--Recurve/brace-height-en/" target="_blank">Open brace height only</a><a class="btn secondary" href="https://rblome22.github.io/Standhoehe--Recurve/bare-shaft-tuner-en/" target="_blank">Open bare shaft only</a></div>
 </section>
 <section class="card hidden" id="brace">
-<h2>Phase 1 – Brace height optimieren</h2>
-<div class="notice">Führe die Brace heightnmessung vollständig durch. Danach bottom auf <b>„Brace height abgeschlossen“</b> drücken. Wenn die App im gleichen Browser läuft, versucht der Assistent das beste Ergebnis automatisch zu übernehmen.</div>
-<div class="frameWrap"><iframe id="braceFrame" title="Brace heightn-Optimierer" src="https://rblome22.github.io/Standhoehe--Recurve/brace-height-en/"></iframe></div>
-<div class="actions"><button class="primary" id="braceDone">Brace height abgeschlossen – Ergebnis übernehmen</button><button class="secondary" id="backIntro">Back to overview</button></div>
+<h2>Phase 1 – Optimize brace height</h2>
+<div class="notice">Complete the full brace-height test. Then press <b>“Brace height completed – import result”</b> below. If the app runs in the same browser, the assistant will try to import the best result automatically.</div>
+<div class="frameWrap"><iframe id="braceFrame" title="Brace Height Optimizer" src="https://rblome22.github.io/Standhoehe--Recurve/brace-height-en/"></iframe></div>
+<div class="actions"><button class="primary" id="braceDone">Brace height completed – import result</button><button class="secondary" id="backIntro">Back to overview</button></div>
 </section>
 <section class="card hidden" id="transfer">
 <h2>Intermediate result</h2>
 <div id="transferMsg" class="notice blue"></div>
-<div class="two"><div><label>Optimale Brace height (optional)</label><input id="braceHeight" placeholder="e.g. 22,4 cm"></div><div><label>Group diameter of best end (optional)</label><input id="groupDiameter" placeholder="e.g. 85 mm"></div></div>
-<div class="notice warn"><b>Note:</b> Der groupsdurchmesser dient hier nur als Orientierung für den Leistungsstand. Der Bare shaft-Tuner bestimmt seine personal Toleranz anschließend neu aus der aktuellen fletchedn Referenzgruppe.</div>
-<div class="actions"><button class="primary" id="goBlank">Weiter zur Bare shaft-Abstimmung</button><button class="secondary" id="backBrace">Back zur Brace height</button></div>
+<div class="two"><div><label>Optimum brace height (optional)</label><input id="braceHeight" placeholder="e.g. 22.4 cm"></div><div><label>Group diameter of best end (optional)</label><input id="groupDiameter" placeholder="e.g. 85 mm"></div></div>
+<div class="notice warn"><b>Note:</b> The group diameter is used only as an indication of current repeatability. The Bare Shaft Tuner recalculates the personal tolerance from the current fletched reference group.</div>
+<div class="actions"><button class="primary" id="goBlank">Continue to bare-shaft tuning</button><button class="secondary" id="backBrace">Back to brace height</button></div>
 </section>
 <section class="card hidden" id="blank">
-<h2>Phase 2 – Bare shaft, nocking point und Tiller</h2>
+<h2>Phase 2 – Bare shaft, nocking point and tiller</h2>
 <div id="carryInfo" class="notice blue"></div>
-<div class="frameWrap"><iframe id="blankFrame" title="Bare shaft Tuner" src="https://rblome22.github.io/Standhoehe--Recurve/bare-shaft-tuner-en/"></iframe></div>
-<div class="actions"><button class="primary" id="blankDone">Tuning completed</button><button class="secondary" id="backTransfer">Back zum Intermediate result</button></div>
+<div class="frameWrap"><iframe id="blankFrame" title="Bare Shaft Tuner" src="https://rblome22.github.io/Standhoehe--Recurve/bare-shaft-tuner-en/"></iframe></div>
+<div class="actions"><button class="primary" id="blankDone">Tuning completed</button><button class="secondary" id="backTransfer">Back to intermediate result</button></div>
 </section>
 <section class="card hidden" id="done">
 <h2>Bow setup completed</h2>
 <div id="summary" class="notice"></div>
-<div class="notice blue"><b>Archer-adapted setup:</b> Die Bare shaft-Abstimmung berücksichtigt die aktuelle grouping des archer. Bei später deutlich verbesserter Schießtechnik empfiehlt sich eine againe Korrektur.</div>
-<div class="actions"><button class="primary" id="restart">Start a new setup</button><a class="btn secondary" href="https://rblome22.github.io/Standhoehe--Recurve/brace-height-en/" target="_blank">Brace height einzeln</a><a class="btn secondary" href="https://rblome22.github.io/Standhoehe--Recurve/bare-shaft-tuner-en/" target="_blank">Bare shaft einzeln</a></div>
+<div class="notice blue"><b>Archer-adapted setup:</b> The bare-shaft tuning takes the archer’s current grouping into account. If shooting technique and repeatability improve significantly later, repeat the correction.</div>
+<div class="actions"><button class="primary" id="restart">Start a new setup</button><a class="btn secondary" href="https://rblome22.github.io/Standhoehe--Recurve/brace-height-en/" target="_blank">Brace height only</a><a class="btn secondary" href="https://rblome22.github.io/Standhoehe--Recurve/bare-shaft-tuner-en/" target="_blank">Bare shaft only</a></div>
 </section>
 </main>
 <footer>© 2026 Rainer Blome · r.blome@rainer-blome.de · All rights reserved.<br><span>Use at your own risk. No liability is accepted for any damage that may occur.</span></footer>
 <script>
 (function(){'use strict';
-var ids=['intro','brace','transfer','blank','done'],names=['Übersicht','Brace height','Übernahme','Bare shaft','Done'];
+var ids=['intro','brace','transfer','blank','done'],names=['Overview','Brace height','Import','Bare shaft','Done'];
 function q(id){return document.getElementById(id)}
 function show(id){ids.forEach(function(x){q(x).classList.toggle('hidden',x!==id)});var n=ids.indexOf(id),h='';names.forEach(function(x,i){h+='<span class="'+(i===n?'active':i<n?'done':'')+'">'+(i+1)+'. '+x+'</span>'});q('steps').innerHTML=h;window.scrollTo(0,0)}
 function readBrace(){var found=null;try{var raw=localStorage.getItem('brace_series_wa_v1'),arr=raw?JSON.parse(raw):[];if(arr&&arr.length){var best=arr.reduce(function(a,b){return Number(b.areaCm2)<Number(a.areaCm2)?b:a},arr[0]);found={height:Number(best.braceHeight),unit:best.braceUnit||'cm',diam:Number(best.groupDiameterMm),area:Number(best.areaCm2),series:best.seriesNo}}}catch(e){}return found}
 q('startWizard').onclick=function(){show('brace')};q('backIntro').onclick=function(){show('intro')};q('backBrace').onclick=function(){show('brace')};q('backTransfer').onclick=function(){show('transfer')};
-q('braceDone').onclick=function(){var b=readBrace();if(b){q('braceHeight').value=(isFinite(b.height)?b.height.toLocaleString('en-GB',{maximumFractionDigits:1}):'')+' '+b.unit;q('groupDiameter').value=isFinite(b.diam)?b.diam.toLocaleString('en-GB',{maximumFractionDigits:1})+' mm':'';q('transferMsg').innerHTML='<b>Brace heightn-Ergebnis gefunden.</b><br>Best end: '+b.series+' · Brace height '+b.height.toLocaleString('en-GB',{maximumFractionDigits:1})+' '+b.unit+' · Group area '+b.area.toLocaleString('en-GB',{maximumFractionDigits:2})+' cm² · groups-Ø '+b.diam.toLocaleString('en-GB',{maximumFractionDigits:1})+' mm.'}else{q('transferMsg').innerHTML='<b>No saved result was found automatically.</b><br>This can happen with a locally opened file or a different browser. The two values can be entered manually below.'}show('transfer')};
-q('goBlank').onclick=function(){var bh=q('braceHeight').value.trim(),gd=q('groupDiameter').value.trim();q('carryInfo').innerHTML='<b>Phase 1 completed.</b>'+(bh?'<br>Übernommene optimum Brace height: <b>'+bh+'</b>.':'')+(gd?'<br>Reference grouping from phase 1: <b>'+gd+'</b>.':'')+'<br>Der Bare shaft-Tuner ermittelt seine Toleranz jetzt again aus den 3 fletchedn Referenzpfeilen.';show('blank')};
-q('blankDone').onclick=function(){var bh=q('braceHeight').value.trim()||'not entered',gd=q('groupDiameter').value.trim()||'not entered';q('summary').innerHTML='<b>Combined setup completed.</b><br>Brace height: '+bh+'<br>Reference group diameter from phase 1: '+gd+'<br>nocking point/Tiller/arrowabstimmung: im Bare shaft-Tuner abgeschlossen.';show('done')};
+q('braceDone').onclick=function(){var b=readBrace();if(b){q('braceHeight').value=(isFinite(b.height)?b.height.toLocaleString('en-GB',{maximumFractionDigits:1}):'')+' '+b.unit;q('groupDiameter').value=isFinite(b.diam)?b.diam.toLocaleString('en-GB',{maximumFractionDigits:1})+' mm':'';q('transferMsg').innerHTML='<b>Brace-height result found.</b><br>Best end: '+b.series+' · Brace height '+b.height.toLocaleString('en-GB',{maximumFractionDigits:1})+' '+b.unit+' · Group area '+b.area.toLocaleString('en-GB',{maximumFractionDigits:2})+' cm² · Group Ø '+b.diam.toLocaleString('en-GB',{maximumFractionDigits:1})+' mm.'}else{q('transferMsg').innerHTML='<b>No saved result was found automatically.</b><br>This can happen with a locally opened file or a different browser. The two values can be entered manually below.'}show('transfer')};
+q('goBlank').onclick=function(){var bh=q('braceHeight').value.trim(),gd=q('groupDiameter').value.trim();q('carryInfo').innerHTML='<b>Phase 1 completed.</b>'+(bh?'<br>Imported optimum brace height: <b>'+bh+'</b>.':'')+(gd?'<br>Reference grouping from phase 1: <b>'+gd+'</b>.':'')+'<br>The Bare Shaft Tuner now recalculates its tolerance from the 3 fletched reference arrows.';show('blank')};
+q('blankDone').onclick=function(){var bh=q('braceHeight').value.trim()||'not entered',gd=q('groupDiameter').value.trim()||'not entered';q('summary').innerHTML='<b>Combined setup completed.</b><br>Brace height: '+bh+'<br>Reference group diameter from phase 1: '+gd+'<br>Nocking point / tiller / arrow tuning: completed in the Bare Shaft Tuner.';show('done')};
 q('restart').onclick=function(){q('braceHeight').value='';q('groupDiameter').value='';show('intro')};show('intro');
 })();
 </script>
