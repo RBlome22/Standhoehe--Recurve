@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#173d32">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Bogen-Setup Assistent</title>
+<style>
+:root{--bg:#f3f6f4;--card:#fff;--ink:#17231e;--muted:#66736d;--green:#0b6b4b;--dark:#173d32;--line:#d7e0db;--blue:#255e9d;--warn:#8a5b00}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}header{position:sticky;top:0;z-index:20;padding:14px 16px;background:rgba(243,246,244,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}header b{font-size:22px}header span{display:block;color:var(--muted);font-size:13px;margin-top:3px}main{max-width:1180px;margin:auto;padding:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:0 5px 20px #0000000d}.hidden{display:none!important}h1,h2{margin:0 0 12px}h1{font-size:26px}h2{font-size:21px}p{line-height:1.5}.muted{color:var(--muted)}.steps{display:flex;gap:7px;overflow:auto;margin-bottom:14px}.steps span{white-space:nowrap;padding:8px 10px;border-radius:10px;background:#e3e9e6;color:#5b6862;font-size:12px;font-weight:800}.steps .active{background:var(--dark);color:#fff}.steps .done{background:#dcefe4;color:#12613c}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.actions>*{flex:1 1 190px}button,a.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border:0;border-radius:14px;padding:14px 16px;min-height:50px;font:inherit;font-weight:800;font-size:16px;cursor:pointer}.primary{background:var(--green);color:#fff}.secondary{background:#e6eeea;color:var(--dark)}.blue{background:#e8f0fb;color:#244f83}.notice{border-left:5px solid var(--green);background:#edf7f2;border-radius:12px;padding:12px 14px;margin:12px 0;line-height:1.45}.notice.blue{border-left-color:var(--blue);background:#eef5ff;color:#183f70}.notice.warn{border-left-color:#b47b15;background:#fff7e8;color:#5c420d}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}@media(max-width:700px){.grid{grid-template-columns:1fr}}.metric{border:1px solid var(--line);border-radius:13px;padding:12px;background:#fafcfa}.metric b{display:block;font-size:20px;margin-top:5px}.frameWrap{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff}.frameWrap iframe{display:block;width:100%;height:72vh;min-height:620px;border:0;background:#fff}@media(max-width:700px){.frameWrap iframe{height:74vh;min-height:560px}}label{display:block;font-size:13px;font-weight:700;margin:7px 0 5px}input{width:100%;padding:12px;border:1px solid #bccbc3;border-radius:11px;font:inherit;font-size:16px}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:650px){.two{grid-template-columns:1fr}}footer{max-width:1180px;margin:0 auto;padding:0 16px 28px;text-align:center;color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+<header><b>Bogen-Setup Assistent</b><span>Für Anfänger: zuerst Standhöhe, danach Blankschaft / Nockpunkt / Tiller</span></header>
+<main>
+<div class="steps" id="steps"></div>
+<section class="card" id="intro">
+<h1>Bogen schrittweise einstellen</h1>
+<p>Dieses dritte Programm verbindet die beiden vorhandenen Programme zu einem geführten Ablauf. <b>Die Einzelprogramme bleiben eigenständig erhalten.</b></p>
+<div class="notice blue"><b>Empfohlene Reihenfolge:</b><br>1. Standhöhe optimieren und eine reproduzierbare Gruppierung erreichen.<br>2. Danach Nockpunkt und dynamische Pfeilabstimmung mit 3 befiederten Pfeilen + 3 Blankschäften durchführen.</div>
+<div class="grid"><div class="metric">Phase 1<b>Standhöhe</b><span class="muted">Gruppenfläche minimieren</span></div><div class="metric">Phase 2<b>Blankschaft</b><span class="muted">Nockpunkt + Tiller/Zuggewicht</span></div><div class="metric">Ziel<b>Anfängerfreundlich</b><span class="muted">Toleranz an Gruppierung angepasst</span></div></div>
+<div class="actions"><button class="primary" id="startWizard">Kombinierte Einstellung starten</button><a class="btn secondary" href="https://rblome22.github.io/Standhoehe--Recurve/" target="_blank">Nur Standhöhe öffnen</a><a class="btn secondary" href="https://rblome22.github.io/Standhoehe--Recurve/blankschaft-tuner-v261/" target="_blank">Nur Blankschaft öffnen</a></div>
+</section>
+<section class="card hidden" id="brace">
+<h2>Phase 1 – Standhöhe optimieren</h2>
+<div class="notice">Führe die Standhöhenmessung vollständig durch. Danach unten auf <b>„Standhöhe abgeschlossen“</b> drücken. Wenn die App im gleichen Browser läuft, versucht der Assistent das beste Ergebnis automatisch zu übernehmen.</div>
+<div class="frameWrap"><iframe id="braceFrame" title="Standhöhen-Optimierer" src="https://rblome22.github.io/Standhoehe--Recurve/"></iframe></div>
+<div class="actions"><button class="primary" id="braceDone">Standhöhe abgeschlossen – Ergebnis übernehmen</button><button class="secondary" id="backIntro">Zur Übersicht</button></div>
+</section>
+<section class="card hidden" id="transfer">
+<h2>Zwischenergebnis</h2>
+<div id="transferMsg" class="notice blue"></div>
+<div class="two"><div><label>Optimale Standhöhe (optional)</label><input id="braceHeight" placeholder="z. B. 22,4 cm"></div><div><label>Gruppendurchmesser bei bester Serie (optional)</label><input id="groupDiameter" placeholder="z. B. 85 mm"></div></div>
+<div class="notice warn"><b>Hinweis:</b> Der Gruppendurchmesser dient hier nur als Orientierung für den Leistungsstand. Der Blankschaft-Tuner bestimmt seine persönliche Toleranz anschließend neu aus der aktuellen befiederten Referenzgruppe.</div>
+<div class="actions"><button class="primary" id="goBlank">Weiter zur Blankschaft-Abstimmung</button><button class="secondary" id="backBrace">Zurück zur Standhöhe</button></div>
+</section>
+<section class="card hidden" id="blank">
+<h2>Phase 2 – Blankschaft, Nockpunkt und Tiller</h2>
+<div id="carryInfo" class="notice blue"></div>
+<div class="frameWrap"><iframe id="blankFrame" title="Blankschaft Tuner" src="https://rblome22.github.io/Standhoehe--Recurve/blankschaft-tuner-v261/"></iframe></div>
+<div class="actions"><button class="primary" id="blankDone">Abstimmung abgeschlossen</button><button class="secondary" id="backTransfer">Zurück zum Zwischenergebnis</button></div>
+</section>
+<section class="card hidden" id="done">
+<h2>Bogen-Setup abgeschlossen</h2>
+<div id="summary" class="notice"></div>
+<div class="notice blue"><b>Schützenangepasste Einstellung:</b> Die Blankschaft-Abstimmung berücksichtigt die aktuelle Gruppierung des Schützen. Bei später deutlich verbesserter Schießtechnik empfiehlt sich eine erneute Korrektur.</div>
+<div class="actions"><button class="primary" id="restart">Neuen Ablauf starten</button><a class="btn secondary" href="https://rblome22.github.io/Standhoehe--Recurve/" target="_blank">Standhöhe einzeln</a><a class="btn secondary" href="https://rblome22.github.io/Standhoehe--Recurve/blankschaft-tuner-v261/" target="_blank">Blankschaft einzeln</a></div>
+</section>
+</main>
+<footer>© 2026 Rainer Blome · Alle Rechte vorbehalten.</footer>
+<script>
+(function(){'use strict';
+var ids=['intro','brace','transfer','blank','done'],names=['Übersicht','Standhöhe','Übernahme','Blankschaft','Fertig'];
+function q(id){return document.getElementById(id)}
+function show(id){ids.forEach(function(x){q(x).classList.toggle('hidden',x!==id)});var n=ids.indexOf(id),h='';names.forEach(function(x,i){h+='<span class="'+(i===n?'active':i<n?'done':'')+'">'+(i+1)+'. '+x+'</span>'});q('steps').innerHTML=h;window.scrollTo(0,0)}
+function readBrace(){var found=null;try{var raw=localStorage.getItem('brace_series_wa_v1'),arr=raw?JSON.parse(raw):[];if(arr&&arr.length){var best=arr.reduce(function(a,b){return Number(b.areaCm2)<Number(a.areaCm2)?b:a},arr[0]);found={height:Number(best.braceHeight),unit:best.braceUnit||'cm',diam:Number(best.groupDiameterMm),area:Number(best.areaCm2),series:best.seriesNo}}}catch(e){}return found}
+q('startWizard').onclick=function(){show('brace')};q('backIntro').onclick=function(){show('intro')};q('backBrace').onclick=function(){show('brace')};q('backTransfer').onclick=function(){show('transfer')};
+q('braceDone').onclick=function(){var b=readBrace();if(b){q('braceHeight').value=(isFinite(b.height)?b.height.toLocaleString('de-DE',{maximumFractionDigits:1}):'')+' '+b.unit;q('groupDiameter').value=isFinite(b.diam)?b.diam.toLocaleString('de-DE',{maximumFractionDigits:1})+' mm':'';q('transferMsg').innerHTML='<b>Standhöhen-Ergebnis gefunden.</b><br>Beste Serie: '+b.series+' · Standhöhe '+b.height.toLocaleString('de-DE',{maximumFractionDigits:1})+' '+b.unit+' · Gruppenfläche '+b.area.toLocaleString('de-DE',{maximumFractionDigits:2})+' cm² · Gruppen-Ø '+b.diam.toLocaleString('de-DE',{maximumFractionDigits:1})+' mm.'}else{q('transferMsg').innerHTML='<b>Kein gespeichertes Ergebnis automatisch gefunden.</b><br>Das kann bei lokal geöffneter Datei oder anderem Browser vorkommen. Die beiden Werte können unten optional von Hand eingetragen werden.'}show('transfer')};
+q('goBlank').onclick=function(){var bh=q('braceHeight').value.trim(),gd=q('groupDiameter').value.trim();q('carryInfo').innerHTML='<b>Phase 1 abgeschlossen.</b>'+(bh?'<br>Übernommene optimale Standhöhe: <b>'+bh+'</b>.':'')+(gd?'<br>Orientierende Gruppierung aus Phase 1: <b>'+gd+'</b>.':'')+'<br>Der Blankschaft-Tuner ermittelt seine Toleranz jetzt nochmals aus den 3 befiederten Referenzpfeilen.';show('blank')};
+q('blankDone').onclick=function(){var bh=q('braceHeight').value.trim()||'nicht eingetragen',gd=q('groupDiameter').value.trim()||'nicht eingetragen';q('summary').innerHTML='<b>Kombinierter Ablauf abgeschlossen.</b><br>Standhöhe: '+bh+'<br>Referenz-Gruppendurchmesser aus Phase 1: '+gd+'<br>Nockpunkt/Tiller/Pfeilabstimmung: im Blankschaft-Tuner abgeschlossen.';show('done')};
+q('restart').onclick=function(){q('braceHeight').value='';q('groupDiameter').value='';show('intro')};show('intro');
+})();
+</script>
+</body></html>
