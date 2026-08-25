@@ -1,0 +1,62 @@
+## index.html
+JS syntax: OK
+Missing DOM ids: none
+q("saveSeriesBtn").onclick: MISSING
+function computeCurrent: OK
+function analyze: OK
+drawAll(): OK
+
+## standhoehe-es/index.html
+JS syntax: OK
+Missing DOM ids: none
+q("saveSeriesBtn").onclick: MISSING
+function computeCurrent: OK
+function analyze: OK
+drawAll(): OK
+
+## brace-height-en/index.html
+JS syntax: OK
+Missing DOM ids: none
+q("saveSeriesBtn").onclick: MISSING
+function computeCurrent: OK
+function analyze: OK
+drawAll(): OK
+
+## blankschaft-tuner-v261/index.html
+JS syntax: OK
+Missing DOM ids: none
+q('savePhoto').onclick: OK
+evaluateSeries(): OK
+function evaluateSeries: OK
+q('goFletched').onclick: OK
+function startSeries: OK
+
+## blankschaft-tuner-es/index.html
+JS syntax: OK
+Missing DOM ids: none
+q('savePhoto').onclick: OK
+evaluateSeries(): OK
+function evaluateSeries: OK
+q('goFletched').onclick: OK
+function startSeries: OK
+
+## bare-shaft-tuner-en/index.html
+JS syntax: OK
+Missing DOM ids: none
+q('savePhoto').onclick: OK
+evaluateSeries(): OK
+function evaluateSeries: OK
+q('goFletched').onclick: OK
+function startSeries: OK
+
+## bogen-setup-assistent/index.html
+JS syntax: OK
+Missing DOM ids: none
+
+## bogen-setup-assistent-es/index.html
+JS syntax: OK
+Missing DOM ids: none
+
+## bow-setup-assistant-en/index.html
+JS syntax: OK
+Missing DOM ids: none
