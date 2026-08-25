@@ -1,0 +1,54 @@
+name: Audit evaluation integrity
+on:
+  push:
+    paths:
+      - '.github/workflows/audit-evaluation.yml'
+permissions:
+  contents: write
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check scripts and critical bindings
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re, subprocess, json
+          files=[
+            'index.html','standhoehe-es/index.html','brace-height-en/index.html',
+            'blankschaft-tuner-v261/index.html','blankschaft-tuner-es/index.html','bare-shaft-tuner-en/index.html',
+            'bogen-setup-assistent/index.html','bogen-setup-assistent-es/index.html','bow-setup-assistant-en/index.html'
+          ]
+          report=[]
+          for fn in files:
+            p=Path(fn)
+            text=p.read_text(encoding='utf-8')
+            scripts=re.findall(r'<script[^>]*>(.*?)</script>',text,re.S|re.I)
+            js='\n'.join(scripts)
+            tmp=Path('/tmp')/(p.parent.name+'_'+p.name+'.js')
+            tmp.write_text(js,encoding='utf-8')
+            r=subprocess.run(['node','--check',str(tmp)],capture_output=True,text=True)
+            ids=set(re.findall(r'id=["\']([^"\']+)["\']',text))
+            refs=set(re.findall(r'(?:q|\$)\(["\']([^"\']+)["\']\)',js))
+            missing=sorted(x for x in refs if x not in ids)
+            report.append(f'## {fn}')
+            report.append('JS syntax: '+('OK' if r.returncode==0 else 'ERROR'))
+            if r.returncode: report.append(r.stderr.strip())
+            report.append('Missing DOM ids: '+(', '.join(missing) if missing else 'none'))
+            if 'blankschaft' in fn or 'bare-shaft' in fn:
+              for token in ["q('savePhoto').onclick","evaluateSeries()","function evaluateSeries","q('goFletched').onclick","function startSeries"]:
+                report.append(f'{token}: '+('OK' if token in js else 'MISSING'))
+            if fn.endswith('index.html') and ('standhoehe' in fn or 'brace-height' in fn or fn=='index.html'):
+              for token in ["q(\"saveSeriesBtn\").onclick",'function computeCurrent','function analyze','drawAll()']:
+                report.append(f'{token}: '+('OK' if token in js else 'MISSING'))
+            report.append('')
+          Path('evaluation-audit.txt').write_text('\n'.join(report),encoding='utf-8')
+          PY
+      - name: Commit report
+        run: |
+          git config user.name "RBlome22"
+          git config user.email "r.blome@rainer-blome.de"
+          git add evaluation-audit.txt
+          git commit -m "Audit evaluation bindings in all language versions" || true
+          git push
