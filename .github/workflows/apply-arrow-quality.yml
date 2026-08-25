@@ -1,0 +1,45 @@
+name: Apply arrow quality feature
+on:
+  push:
+    paths:
+      - '.arrow-quality-trigger'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply feature
+        run: python tools/add_arrow_quality.py
+      - name: Validate JavaScript
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re, subprocess, sys
+          files=['index.html','standhoehe-es/index.html','brace-height-en/index.html']
+          bad=False
+          for fn in files:
+              text=Path(fn).read_text(encoding='utf-8')
+              js='\n'.join(re.findall(r'<script[^>]*>(.*?)</script>',text,re.S|re.I))
+              tmp=Path('/tmp')/(Path(fn).parent.name+'_'+Path(fn).name+'.js')
+              tmp.write_text(js,encoding='utf-8')
+              r=subprocess.run(['node','--check',str(tmp)],capture_output=True,text=True)
+              req=['function buildArrowMetrics','function renderArrowQuality','showArrowDetail','showSeriesDetail','arrowMetrics:buildArrowMetrics','id="arrowQualityWrap"','id="detailOverlay"']
+              missing=[x for x in req if x not in text]
+              print(fn,'syntax',r.returncode,'missing',missing)
+              if r.returncode or missing:
+                  print(r.stderr);bad=True
+          if bad: sys.exit(1)
+          PY
+      - name: Commit app updates
+        run: |
+          git config user.name "RBlome22"
+          git config user.email "r.blome@rainer-blome.de"
+          git add index.html standhoehe-es/index.html brace-height-en/index.html bogen-setup-assistent/index.html bogen-setup-assistent-es/index.html bow-setup-assistant-en/index.html
+          if git diff --cached --quiet; then
+            echo "No changes required."
+          else
+            git commit -m "Restore arrow quality ranking and hit-pattern views"
+            git push
+          fi
