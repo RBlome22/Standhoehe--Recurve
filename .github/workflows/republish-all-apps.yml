@@ -1,0 +1,112 @@
+name: Republish all archery apps
+
+on:
+  push:
+    paths:
+      - '.github/workflows/republish-all-apps.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  republish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate, version and create download copies
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import shutil, re
+
+          release = '2026-08-25-r1'
+          apps = [
+            # path, download filename, language, title, online path
+            ('index.html', 'Standhoehen_Optimierer_DE.html', 'de', 'Standhöhen-Optimierer', '../'),
+            ('blankschaft-tuner-v261/index.html', 'Blankschaft_Tuner_DE.html', 'de', 'Blankschaft-Tuner', '../blankschaft-tuner-v261/'),
+            ('bogen-setup-assistent/index.html', 'Bogen_Setup_Assistent_DE.html', 'de', 'Bogen-Setup Assistent', '../bogen-setup-assistent/'),
+            ('standhoehe-es/index.html', 'Optimizador_Fistmele_ES.html', 'es', 'Optimizador de fistmele', '../standhoehe-es/'),
+            ('blankschaft-tuner-es/index.html', 'Afinador_Flecha_Desnuda_ES.html', 'es', 'Afinador de flecha desnuda', '../blankschaft-tuner-es/'),
+            ('bogen-setup-assistent-es/index.html', 'Asistente_Puesta_a_Punto_ES.html', 'es', 'Asistente de puesta a punto del arco', '../bogen-setup-assistent-es/'),
+            ('brace-height-en/index.html', 'Brace_Height_Optimizer_EN.html', 'en', 'Brace Height Optimizer', '../brace-height-en/'),
+            ('bare-shaft-tuner-en/index.html', 'Bare_Shaft_Tuner_EN.html', 'en', 'Bare Shaft Tuner', '../bare-shaft-tuner-en/'),
+            ('bow-setup-assistant-en/index.html', 'Bow_Setup_Assistant_EN.html', 'en', 'Bow Setup Assistant', '../bow-setup-assistant-en/'),
+          ]
+
+          required = {
+            'de': [
+              '© 2026 Rainer Blome',
+              'r.blome@rainer-blome.de',
+              'Die Benutzung erfolgt auf eigene Gefahr.',
+              'Für eventuell entstandene Schäden wird keine Haftung übernommen.'
+            ],
+            'es': [
+              '© 2026 Rainer Blome',
+              'r.blome@rainer-blome.de',
+              'El uso se realiza bajo la propia responsabilidad del usuario.',
+              'No se asume ninguna responsabilidad por los daños que pudieran producirse.'
+            ],
+            'en': [
+              '© 2026 Rainer Blome',
+              'r.blome@rainer-blome.de',
+              'Use at your own risk.',
+              'No liability is accepted for any damage that may occur.'
+            ]
+          }
+
+          outdir = Path('downloads/files')
+          outdir.mkdir(parents=True, exist_ok=True)
+
+          for path, filename, lang, title, online in apps:
+            p = Path(path)
+            if not p.exists():
+              raise SystemExit(f'MISSING APP: {path}')
+            text = p.read_text(encoding='utf-8')
+            for needle in required[lang]:
+              if needle not in text:
+                raise SystemExit(f'MISSING REQUIRED TEXT in {path}: {needle}')
+            # Add/update a harmless release marker to force a clean Pages rebuild.
+            marker = f'<meta name="app-release" content="{release}">'
+            if re.search(r'<meta name="app-release" content="[^"]+">', text):
+              text = re.sub(r'<meta name="app-release" content="[^"]+">', marker, text, count=1)
+            elif '</head>' in text:
+              text = text.replace('</head>', marker + '\n</head>', 1)
+            else:
+              text = '<!-- app-release ' + release + ' -->\n' + text
+            p.write_text(text, encoding='utf-8')
+            (outdir / filename).write_text(text, encoding='utf-8')
+
+          # Rebuild a simple, stable multilingual download centre from scratch.
+          groups = {
+            'Deutsch': [x for x in apps if x[2]=='de'],
+            'Español': [x for x in apps if x[2]=='es'],
+            'English': [x for x in apps if x[2]=='en'],
+          }
+          labels = {
+            'de': ('Online öffnen','HTML herunterladen'),
+            'es': ('Abrir online','Descargar HTML'),
+            'en': ('Open online','Download HTML'),
+          }
+          html = ['''<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bogensport Apps – Downloads</title><meta name="app-release" content="'''+release+'''"><style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:#f3f6f4;color:#17231e;margin:0}main{max-width:1050px;margin:auto;padding:24px}.lang{background:#fff;border:1px solid #d7e0db;border-radius:18px;padding:20px;margin:16px 0}.app{padding:14px 0;border-bottom:1px solid #e1e7e3}.app:last-child{border-bottom:0}.buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}.btn{display:inline-flex;text-decoration:none;align-items:center;justify-content:center;padding:11px 15px;border-radius:11px;background:#0b6b4b;color:#fff;font-weight:700}.secondary{background:#e6eeea;color:#173d32}.note{background:#eef5ff;border-left:5px solid #255e9d;padding:12px 14px;border-radius:12px}footer{text-align:center;color:#66736d;font-size:12px;padding:20px}</style></head><body><main><h1>Bogensport Apps · Archery Apps</h1><div class="note"><b>Empfehlung für Anfänger / Recomendado para principiantes / Recommended for beginners:</b><br>Bogen-Setup Assistent · Asistente de puesta a punto del arco · Bow Setup Assistant</div>''']
+          for heading, items in groups.items():
+            html.append(f'<section class="lang"><h2>{heading}</h2>')
+            for path, filename, lang, title, online in items:
+              olabel, dlabel = labels[lang]
+              html.append(f'<div class="app"><b>{title}</b><div class="buttons"><a class="btn" href="{online}">{olabel}</a><a class="btn secondary" href="files/{filename}" download="{filename}">{dlabel}</a></div></div>')
+            html.append('</section>')
+          html.append('''</main><footer>© 2026 Rainer Blome · r.blome@rainer-blome.de · Alle Rechte vorbehalten / Todos los derechos reservados / All rights reserved.<br>Benutzung auf eigene Gefahr · Uso bajo la propia responsabilidad · Use at your own risk.</footer></body></html>''')
+          Path('downloads/index.html').write_text(''.join(html), encoding='utf-8')
+
+          # Machine-readable release manifest for verification.
+          manifest = ['release=' + release]
+          for path, filename, lang, title, online in apps:
+            manifest.append(f'{lang}|{title}|{path}|downloads/files/{filename}')
+          Path('downloads/RELEASE.txt').write_text('\n'.join(manifest) + '\n', encoding='utf-8')
+          PY
+      - name: Commit republished apps
+        run: |
+          git config user.name "RBlome22"
+          git config user.email "r.blome@rainer-blome.de"
+          git add index.html blankschaft-tuner-v261/index.html bogen-setup-assistent/index.html standhoehe-es/index.html blankschaft-tuner-es/index.html bogen-setup-assistent-es/index.html brace-height-en/index.html bare-shaft-tuner-en/index.html bow-setup-assistant-en/index.html downloads/index.html downloads/files downloads/RELEASE.txt
+          git commit -m "Republish all nine archery apps with stable downloads"
+          git push
