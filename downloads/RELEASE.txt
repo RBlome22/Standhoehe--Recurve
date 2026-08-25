@@ -1,0 +1,10 @@
+release=2026-08-25-r1
+de|Standhöhen-Optimierer|index.html|downloads/files/Standhoehen_Optimierer_DE.html
+de|Blankschaft-Tuner|blankschaft-tuner-v261/index.html|downloads/files/Blankschaft_Tuner_DE.html
+de|Bogen-Setup Assistent|bogen-setup-assistent/index.html|downloads/files/Bogen_Setup_Assistent_DE.html
+es|Optimizador de fistmele|standhoehe-es/index.html|downloads/files/Optimizador_Fistmele_ES.html
+es|Afinador de flecha desnuda|blankschaft-tuner-es/index.html|downloads/files/Afinador_Flecha_Desnuda_ES.html
+es|Asistente de puesta a punto del arco|bogen-setup-assistent-es/index.html|downloads/files/Asistente_Puesta_a_Punto_ES.html
+en|Brace Height Optimizer|brace-height-en/index.html|downloads/files/Brace_Height_Optimizer_EN.html
+en|Bare Shaft Tuner|bare-shaft-tuner-en/index.html|downloads/files/Bare_Shaft_Tuner_EN.html
+en|Bow Setup Assistant|bow-setup-assistant-en/index.html|downloads/files/Bow_Setup_Assistant_EN.html
