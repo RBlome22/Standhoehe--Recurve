@@ -99,35 +99,26 @@ def make_png(size, path):
     bg=(11,107,75,255)
     pix=[[list(bg) for _ in range(size)] for _ in range(size)]
     cx=cy=size//2
-    # target rings: white, blue, red, gold
     rings=[(0.36,(245,248,246,255)),(0.29,(46,117,182,255)),(0.21,(205,54,54,255)),(0.13,(245,196,50,255))]
     for frac,col in rings:
-        r=int(size*frac)
-        r2=r*r
+        r=int(size*frac); r2=r*r
         for y in range(max(0,cy-r),min(size,cy+r+1)):
             dy=y-cy
             for x in range(max(0,cx-r),min(size,cx+r+1)):
                 dx=x-cx
-                if dx*dx+dy*dy<=r2:
-                    pix[y][x]=list(col)
-    # central dot
+                if dx*dx+dy*dy<=r2: pix[y][x]=list(col)
     rr=max(2,size//45)
     for y in range(cy-rr,cy+rr+1):
         for x in range(cx-rr,cx+rr+1):
             if 0<=x<size and 0<=y<size: pix[y][x]=[30,30,30,255]
-    # arrow from lower-left to upper-right
     x0=int(size*.18); y0=int(size*.82); x1=int(size*.82); y1=int(size*.18)
-    width=max(3,size//40)
-    vx=x1-x0; vy=y1-y0; L=math.hypot(vx,vy); nx=-vy/L; ny=vx/L
+    width=max(3,size//40); vx=x1-x0; vy=y1-y0; L=math.hypot(vx,vy); nx=-vy/L; ny=vx/L
     for t in range(int(L)+1):
         x=x0+vx*t/L; y=y0+vy*t/L
         for w in range(-width,width+1):
             xx=int(round(x+nx*w)); yy=int(round(y+ny*w))
             if 0<=xx<size and 0<=yy<size: pix[yy][xx]=[255,255,255,255]
-    # arrow head
-    head=max(14,size//8)
-    ux=vx/L; uy=vy/L
-    bx=x1-ux*head; by=y1-uy*head
+    head=max(14,size//8); ux=vx/L; uy=vy/L; bx=x1-ux*head; by=y1-uy*head
     p1=(x1,y1); p2=(bx+nx*head*.55,by+ny*head*.55); p3=(bx-nx*head*.55,by-ny*head*.55)
     def inside(px,py,a,b,c):
         def s(p1,p2,p3): return (p1[0]-p3[0])*(p2[1]-p3[1])-(p2[0]-p3[0])*(p1[1]-p3[1])
@@ -138,7 +129,6 @@ def make_png(size, path):
     for y in range(miny,maxy+1):
         for x in range(minx,maxx+1):
             if inside(x,y,p1,p2,p3): pix[y][x]=[255,255,255,255]
-    # fletching at tail
     tail=max(12,size//10)
     for sign in (-1,1):
         ax=x0+nx*sign*2; ay=y0+ny*sign*2
@@ -151,10 +141,10 @@ def make_png(size, path):
             for x in range(minx,maxx+1):
                 if inside(x,y,*pts): pix[y][x]=[255,255,255,255]
     raw=b''.join(b'\x00'+bytes(sum(row,[])) for row in pix)
-    def chunk(tag,data):
-        return struct.pack('>I',len(data))+tag+data+struct.pack('>I',zlib.crc32(tag+data)&0xffffffff)
+    def chunk(tag,data): return struct.pack('>I',len(data))+tag+data+struct.pack('>I',zlib.crc32(tag+data)&0xffffffff)
     data=b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('>IIBBBBB',size,size,8,6,0,0,0))+chunk(b'IDAT',zlib.compress(raw,9))+chunk(b'IEND',b'')
     path.write_bytes(data)
 
 for s in (180,192,512): make_png(s, OUT/f'icon-{s}.png')
 print('Built iPad PWA in', OUT)
+# Trigger marker: 2026-09-05
