@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#173d32">
+<title>Bogen-Setup v3 – Offline installieren</title>
+<style>
+:root{--bg:#f3f6f4;--card:#fff;--ink:#17231e;--muted:#66736d;--green:#0b6b4b;--dark:#173d32;--line:#d7e0db;--blue:#255e9d}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;line-height:1.5}main{max-width:900px;margin:auto;padding:22px}.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:16px;box-shadow:0 5px 20px #0000000d}h1{margin:0 0 8px;font-size:28px}h2{margin:0 0 10px;font-size:21px}.muted{color:var(--muted)}.status{border-left:5px solid var(--blue);background:#eef5ff;border-radius:12px;padding:13px 15px;margin:14px 0}.status.ready{border-left-color:var(--green);background:#edf7f2}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}@media(max-width:720px){.grid{grid-template-columns:1fr}}a{display:block;text-decoration:none;border-radius:14px;padding:16px;background:var(--green);color:#fff;font-weight:800;text-align:center}.secondary{background:#e6eeea;color:var(--dark)}ol{padding-left:22px}footer{text-align:center;color:var(--muted);font-size:12px;padding:4px 16px 28px}
+</style>
+</head>
+<body>
+<main>
+<section class="card">
+<h1>Bogen-Setup v3 – Offline</h1>
+<p>Einmal mit Internet öffnen und installieren. Danach funktionieren Standhöhe, Pfeilqualität, Trefferbilder, Blankschaft, Nockpunkt und Tiller am Übungsplatz ohne Internet.</p>
+<div id="offlineStatus" class="status"><b>Offline-Daten werden vorbereitet …</b><br><span class="muted">Bitte diese Seite beim ersten Mal kurz geöffnet lassen.</span></div>
+</section>
+<section class="card">
+<h2>Sprache / Idioma / Language</h2>
+<div class="grid">
+<div><a href="../bogen-setup-assistent-v3/?v=20260905-r4">Deutsch</a></div>
+<div><a href="../bogen-setup-assistent-es-v3/?v=20260905-r4">Español</a></div>
+<div><a href="../bow-setup-assistant-v3/?v=20260905-r4">English</a></div>
+</div>
+</section>
+<section class="card">
+<h2>Installation auf iPad / iPhone</h2>
+<ol><li>Mit WLAN oder Mobilfunk diese Seite öffnen.</li><li>Warten, bis oben <b>„Offline-Daten gespeichert“</b> erscheint.</li><li>Die gewünschte Sprache öffnen.</li><li>In Safari auf <b>Teilen</b> tippen und <b>„Zum Home-Bildschirm“</b> wählen.</li><li>Danach kann die App auch im Flugmodus gestartet und benutzt werden.</li></ol>
+<p class="muted"><b>Wichtig:</b> Fotos und Messergebnisse bleiben lokal auf dem jeweiligen Gerät gespeichert. Für spätere Programm-Updates die App einmal wieder mit Internet öffnen.</p>
+</section>
+<section class="card">
+<h2>Einzelprogramme</h2>
+<div class="grid">
+<div><a class="secondary" href="../standhoehe-v3/?v=20260905-r4">Standhöhe DE</a></div>
+<div><a class="secondary" href="../standhoehe-es-v3/?v=20260905-r4">Fistmele ES</a></div>
+<div><a class="secondary" href="../brace-height-v3/?v=20260905-r4">Brace Height EN</a></div>
+</div>
+</section>
+</main>
+<footer>© 2026 Rainer Blome · r.blome@rainer-blome.de · Alle Rechte vorbehalten.<br>Die Benutzung erfolgt auf eigene Gefahr. Für eventuell entstandene Schäden wird keine Haftung übernommen.</footer>
+<script>
+(async()=>{const s=document.getElementById('offlineStatus');if(!('serviceWorker'in navigator)){s.innerHTML='<b>Offline-Installation wird von diesem Browser nicht unterstützt.</b>';return}try{await navigator.serviceWorker.register('../offline-sw-v3.js');await navigator.serviceWorker.ready;s.classList.add('ready');s.innerHTML='<b>✓ Offline-Daten gespeichert.</b><br>Die App kann jetzt installiert und anschließend ohne Internet verwendet werden.'}catch(e){s.innerHTML='<b>Offline-Daten konnten noch nicht gespeichert werden.</b><br>Bitte Internetverbindung prüfen und Seite neu laden.'}})();
+</script>
+</body></html>
