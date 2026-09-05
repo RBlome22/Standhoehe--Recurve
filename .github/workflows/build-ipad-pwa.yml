@@ -1,0 +1,37 @@
+name: Build iPad Bogen Setup PWA
+
+on:
+  push:
+    paths:
+      - 'tools/build_ipad_pwa.py'
+      - 'offline-downloads/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build iPad PWA
+        run: python tools/build_ipad_pwa.py
+      - name: Verify PWA files
+        run: |
+          test -f ipad-app/index.html
+          test -f ipad-app/de.html
+          test -f ipad-app/es.html
+          test -f ipad-app/en.html
+          test -f ipad-app/sw.js
+          test -f ipad-app/manifest.webmanifest
+          test -f ipad-app/icon-180.png
+          test -f ipad-app/icon-192.png
+          test -f ipad-app/icon-512.png
+      - name: Commit PWA
+        run: |
+          git config user.name "RBlome22"
+          git config user.email "r.blome@rainer-blome.de"
+          git add ipad-app
+          git commit -m "Build installable iPad Bogen Setup PWA" || true
+          git push
