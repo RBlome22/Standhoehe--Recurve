@@ -1,0 +1,16 @@
+{
+  "name": "Asistente de puesta a punto del arco Offline",
+  "short_name": "Ajuste arco",
+  "description": "Asistente sin conexión para fistmele, calidad de flechas, flecha desnuda, punto de enfleche y tiller.",
+  "start_url": "./bogen-setup-assistent-es-v3/",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3f6f4",
+  "theme_color": "#173d32",
+  "orientation": "any",
+  "icons": [
+    {"src":"icons/icon-192.png","sizes":"192x192","type":"image/png"},
+    {"src":"icons/icon-512.png","sizes":"512x512","type":"image/png"},
+    {"src":"icons/icon-180.png","sizes":"180x180","type":"image/png"}
+  ]
+}
