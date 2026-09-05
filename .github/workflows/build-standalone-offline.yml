@@ -22,7 +22,18 @@ jobs:
           test -f offline-downloads/Bogen_Setup_Assistent_v3_Offline_DE.html
           test -f offline-downloads/Asistente_Puesta_a_Punto_v3_Offline_ES.html
           test -f offline-downloads/Bow_Setup_Assistant_v3_Offline_EN.html
-          grep -L "fetch(" offline-downloads/*Setup*Offline*.html
+          python - <<'PY'
+          from pathlib import Path
+          files=[
+            Path('offline-downloads/Bogen_Setup_Assistent_v3_Offline_DE.html'),
+            Path('offline-downloads/Asistente_Puesta_a_Punto_v3_Offline_ES.html'),
+            Path('offline-downloads/Bow_Setup_Assistant_v3_Offline_EN.html')]
+          for p in files:
+              t=p.read_text(encoding='utf-8')
+              assert 'fetch(' not in t
+              assert 'github.io' not in t
+              print('offline OK:',p)
+          PY
       - name: Commit generated files
         run: |
           git config user.name "RBlome22"
