@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=yes">
+<meta name="theme-color" content="#0b6b4b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Bogen Setup">
+<meta name="application-name" content="Bogen Setup">
+<title>Bogen Setup</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" sizes="180x180" href="./icon-180.png">
+<style>
+:root{--bg:#f3f6f4;--card:#fff;--ink:#17231e;--muted:#66736d;--green:#0b6b4b;--dark:#173d32;--line:#d7e0db;--blue:#255e9d}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}main{max-width:760px;margin:auto;padding:22px 16px 34px}.logo{width:112px;height:112px;border-radius:24px;display:block;margin:12px auto 18px;box-shadow:0 5px 22px #0002}h1{text-align:center;margin:0 0 6px;font-size:30px}.sub{text-align:center;color:var(--muted);margin:0 0 22px}.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;margin:14px 0;box-shadow:0 5px 20px #0000000d}.status{border-left:5px solid var(--green);background:#edf7f2;border-radius:12px;padding:12px 14px;line-height:1.45}.status.wait{border-left-color:#b47b15;background:#fff7e8}.buttons{display:grid;gap:12px;margin-top:16px}button{border:0;border-radius:15px;padding:17px 16px;min-height:58px;font:inherit;font-weight:800;font-size:18px;background:var(--green);color:#fff}button.secondary{background:#e8f0fb;color:#244f83}button.tertiary{background:#e6eeea;color:var(--dark)}.steps{font-size:15px;line-height:1.55}.small{font-size:13px;color:var(--muted);line-height:1.45}footer{text-align:center;color:var(--muted);font-size:12px;margin-top:22px;line-height:1.5}@media(min-width:700px){main{padding-top:38px}.logo{width:132px;height:132px}}
+</style>
+</head>
+<body><main>
+<img class="logo" src="./icon-192.png" alt="Bogen Setup Logo">
+<h1>Bogen Setup</h1>
+<p class="sub">Standhöhe · Pfeilqualität · Blankschaft · Nockpunkt · Tiller</p>
+<section class="card">
+<div id="offlineStatus" class="status wait"><b>Offline wird vorbereitet …</b><br>Beim ersten Öffnen bitte kurz mit dem Internet verbunden bleiben.</div>
+<div class="buttons">
+<button onclick="openApp('de.html','de')">Deutsch</button>
+<button class="secondary" onclick="openApp('es.html','es')">Español</button>
+<button class="tertiary" onclick="openApp('en.html','en')">English</button>
+</div>
+</section>
+<section class="card steps">
+<b>Auf dem iPad installieren:</b><br>
+1. Diese Seite einmal in <b>Safari</b> öffnen.<br>
+2. Warten, bis oben <b>„✓ Offline bereit“</b> steht.<br>
+3. Safari: <b>Teilen → Zum Home-Bildschirm</b>.<br>
+4. <b>Hinzufügen</b> wählen.<br><br>
+Danach erscheint das Symbol <b>„Bogen Setup“</b> auf dem iPad-Home-Bildschirm. Die App kann anschließend am Übungsplatz ohne Internet gestartet werden.
+</section>
+<section class="card small"><b>Hinweis:</b> Die Messdaten bleiben lokal auf dem jeweiligen Gerät. Für eine neue Programmversion die App später einmal wieder mit Internet öffnen.</section>
+<footer>© 2026 Rainer Blome · r.blome@rainer-blome.de · Alle Rechte vorbehalten.<br>Die Benutzung erfolgt auf eigene Gefahr. Für eventuell entstandene Schäden wird keine Haftung übernommen.</footer>
+</main>
+<script>
+function openApp(file,lang){try{localStorage.setItem('bogenSetupLanguage',lang)}catch(e){} location.href='./'+file;}
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js').then(()=>navigator.serviceWorker.ready).then(()=>{
+    const s=document.getElementById('offlineStatus');
+    s.className='status'; s.innerHTML='<b>✓ Offline bereit</b><br>Die Programme wurden auf diesem Gerät gespeichert.';
+  }).catch(()=>{
+    document.getElementById('offlineStatus').innerHTML='<b>Offline-Speicherung nicht bestätigt.</b><br>Bitte die Seite in Safari neu laden.';
+  });
+}else{
+  document.getElementById('offlineStatus').innerHTML='<b>Offline-Speicherung wird von diesem Browser nicht unterstützt.</b><br>Bitte Safari verwenden.';
+}
+</script>
+</body></html>
