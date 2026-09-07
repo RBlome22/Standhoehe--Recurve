@@ -41,6 +41,7 @@ jobs:
               assert 'state.series.sort' in b
               assert '© 2026 Rainer Blome' in b
               assert 'Haftung' in b or 'responsabilidad' in b.lower() or 'liability' in b.lower()
+              assert 'archer' in b and 'bow' in b
               print('OK',p)
           for p in [Path('ipad-app/de.html'),Path('ipad-app/es.html'),Path('ipad-app/en.html')]:
               assert p.exists() and p.stat().st_size>20000
@@ -51,5 +52,7 @@ jobs:
           git config user.name "RBlome22"
           git config user.email "r.blome@rainer-blome.de"
           git add offline-downloads ipad-app
-          git commit -m "Field v4: verified zoom, date archive, ordered series" || true
+          git commit -m "Field v4: dated sessions, zoom and ordered series" || true
           git push
+
+# rebuild 2026-09-07 dated-session release
