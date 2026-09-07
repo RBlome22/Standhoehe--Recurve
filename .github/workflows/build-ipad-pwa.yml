@@ -1,10 +1,6 @@
 name: Build iPad Bogen Setup PWA
 
 on:
-  push:
-    paths:
-      - 'tools/build_ipad_pwa.py'
-      - 'offline-downloads/**'
   workflow_dispatch:
 
 permissions:
