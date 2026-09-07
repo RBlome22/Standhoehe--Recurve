@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'tools/patch_field_v4.py'
+      - 'tools/field_v4_precision.py'
       - '.github/workflows/build-field-v4.yml'
   workflow_dispatch:
 
@@ -19,6 +20,8 @@ jobs:
         run: python tools/build_offline.py
       - name: Apply field-test v4 patch
         run: python tools/patch_field_v4.py
+      - name: Apply precision safeguards
+        run: python tools/field_v4_precision.py
       - name: Build iPad PWA
         run: python tools/build_ipad_pwa.py
       - name: Verify preserved and new functions
@@ -32,15 +35,21 @@ jobs:
             Path('offline-downloads/Bow_Setup_Assistant_v3_Offline_EN.html')]
           for p in combos:
               t=p.read_text(encoding='utf-8')
-              assert 'const BLANK=' in t
-              m=re.search(r"const BRACE='([^']*)';",t); assert m
-              b=base64.b64decode(m.group(1)).decode('utf-8')
+              mb=re.search(r"const BRACE='([^']*)';",t); mk=re.search(r"const BLANK='([^']*)';",t)
+              assert mb and mk
+              b=base64.b64decode(mb.group(1)).decode('utf-8')
+              k=base64.b64decode(mk.group(1)).decode('utf-8')
               assert 'brace_sessions_wa_v4' in b
+              assert 'field-v4-seriesfix' in b
+              assert 'slashDateV4' in b
               assert 'touchstart' in b and 'touchmove' in b
               assert 'arrowQuality' in b or 'Pfeilqualität' in b or 'calidad' in b.lower()
               assert 'state.series.sort' in b
-              assert '© 2026 Rainer Blome' in b
-              assert 'Haftung' in b or 'responsabilidad' in b.lower() or 'liability' in b.lower()
+              assert 'recommendedTiller' in k and 'tillerHistory' in k
+              assert 'position:sticky;top:0;z-index:10' not in k
+              assert '© 2026 Rainer Blome' in b and '© 2026 Rainer Blome' in k
+              assert ('Haftung' in b or 'responsabilidad' in b.lower() or 'liability' in b.lower())
+              assert ('Haftung' in k or 'responsabilidad' in k.lower() or 'liability' in k.lower())
               assert 'archer' in b and 'bow' in b
               print('OK',p)
           for p in [Path('ipad-app/de.html'),Path('ipad-app/es.html'),Path('ipad-app/en.html')]:
@@ -52,7 +61,5 @@ jobs:
           git config user.name "RBlome22"
           git config user.email "r.blome@rainer-blome.de"
           git add offline-downloads ipad-app
-          git commit -m "Field v4: dated sessions, zoom and ordered series" || true
+          git commit -m "Field v4: precision fixes for offline training" || true
           git push
-
-# rebuild 2026-09-07 dated-session release
