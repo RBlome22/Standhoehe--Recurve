@@ -1,0 +1,152 @@
+name: Update Pfeilkauf V8
+
+on:
+  push:
+    paths:
+      - '.github/workflows/update-pfeilkauf-v8.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Patch Pfeilkauf app
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('pfeilkauf/index.html')
+          s=p.read_text(encoding='utf-8')
+
+          # Version marker
+          s=s.replace('<h1>Pfeilkauf – Tillerfenster</h1>', '<h1>Pfeilkauf – Tillerfenster <span style="font-size:14px;color:#66717c">V8</span></h1>')
+
+          # Separate old Hoyt models
+          s=s.replace('<option value="hoyt_legacy_manual">Matrix / Aerotec / sehr altes Hoyt – Herstellergrenze prüfen</option>',
+          '''<option value="hoyt_aerotec">AeroTec – alte Hoyt-Sicherheitsgrenze</option>\n<option value="hoyt_matrix">Matrix – alte Hoyt-Sicherheitsgrenze</option>\n<option value="hoyt_legacy_manual">Sehr altes Hoyt – Herstellergrenze prüfen</option>''')
+
+          # Manual input labels get IDs for model-specific instruction
+          s=s.replace('<label>Maximal zulässige Umdrehungen laut Hersteller</label>', '<label id="manualTurnsLabel">Maximal zulässige Umdrehungen laut Hersteller</label>',1)
+          s=s.replace('<span class="help">Nur nach Handbuch/Herstellerangabe eintragen. Nicht schätzen.</span>', '<span class="help" id="manualTurnsHelp">Nur nach Handbuch/Herstellerangabe eintragen. Nicht schätzen.</span>',1)
+
+          # Riser database: add AeroTec and Matrix as special old-Hoyt rule
+          s=s.replace('"hoyt_eclipse": {"name": "Hoyt Eclipse", "turns": 6, "manual": false}, "hoyt_legacy_manual": {"name": "Hoyt Matrix / Aerotec / sehr altes Modell", "turns": null, "manual": true}',
+          '"hoyt_eclipse": {"name": "Hoyt Eclipse", "turns": 6, "manual": false}, "hoyt_aerotec": {"name": "Hoyt AeroTec", "turns": null, "manual": true, "oldHoytFlush": true}, "hoyt_matrix": {"name": "Hoyt Matrix", "turns": null, "manual": true, "oldHoytFlush": true}, "hoyt_legacy_manual": {"name": "Sehr altes Hoyt Mittelteil", "turns": null, "manual": true}')
+
+          # Preserve special safety flag from database
+          s=s.replace('turns: Number.isFinite(mv) && mv > 0 ? mv : null,\n      manual: true\n    };',
+          'turns: Number.isFinite(mv) && mv > 0 ? mv : null,\n      manual: true,\n      oldHoytFlush: !!base.oldHoytFlush\n    };',1)
+          s=s.replace('return { id, name: base.name, turns: base.turns, manual: false };',
+          'return { id, name: base.name, turns: base.turns, manual: false, oldHoytFlush: !!base.oldHoytFlush };',1)
+
+          # Model-specific instruction text for old Hoyt
+          marker="if(status) status.textContent = r ? ('Ausgewählt: ' + r.name) : '';"
+          add="""if(status) status.textContent = r ? ('Ausgewählt: ' + r.name) : '';
+  const ml=document.getElementById('manualTurnsLabel');
+  const mh=document.getElementById('manualTurnsHelp');
+  if(r && r.oldHoytFlush){
+    if(ml) ml.textContent='Gezählte Umdrehungen bis zur sicheren Außenstellung';
+    if(mh) mh.textContent='AeroTec/Matrix: Von vollständig eingedreht langsam herausdrehen. Stoppen, sobald der Tillerschraubenkopf bündig mit dem Mittelteil ist; mindestens 6 Gewindegänge müssen eingreifen. Die bis dahin gezählten Umdrehungen hier eintragen.';
+  } else {
+    if(ml) ml.textContent='Maximal zulässige Umdrehungen laut Hersteller';
+    if(mh) mh.textContent='Nur nach Handbuch/Herstellerangabe eintragen. Nicht schätzen.';
+  }"""
+          s=s.replace(marker,add,1)
+
+          old="""if(!r.turns){
+    box.innerHTML =
+      `<strong>${r.name}</strong>` +
+      '<span class="big">Herstellerwert erforderlich</span>' +
+      'Bitte maximale Umdrehungszahl laut Hersteller eintragen.';
+    document.getElementById('measureInstruction').innerHTML =
+      '<strong>Messablauf:</strong> Erst den sicheren Herstellerwert eintragen.';
+    return;
+  }"""
+          new="""if(!r.turns){
+    if(r.oldHoytFlush){
+      box.innerHTML = `<strong>${r.name}</strong>` +
+        '<span class="big">bis bündig herausdrehen – nicht darüber!</span>' +
+        'Altes Hoyt-Handbuch: etwa 10 % Zuggewichts-Verstellbereich. Der Weight/Tiller-Bolt darf nicht über die Fläche des Mittelteils hinausragen; mindestens <strong>6 Gewindegänge</strong> müssen eingreifen. Beim Herausdrehen Umdrehungen zählen und oben eintragen.';
+      document.getElementById('measureInstruction').innerHTML =
+        '<strong>Anweisung für AeroTec/Matrix:</strong> Vollständig eindrehen und Zuggewicht messen. Dann langsam herausdrehen und Umdrehungen zählen. <strong>Stoppen, sobald der Bolzen bündig ist; mindestens 6 Gewindegänge müssen eingreifen.</strong> Anzahl eintragen und Zuggewicht erneut messen.';
+    } else {
+      box.innerHTML = `<strong>${r.name}</strong>` +
+        '<span class="big">Herstellerwert erforderlich</span>' +
+        'Bitte maximale Umdrehungszahl laut Hersteller eintragen.';
+      document.getElementById('measureInstruction').innerHTML =
+        '<strong>Messablauf:</strong> Erst den sicheren Herstellerwert eintragen.';
+    }
+    return;
+  }"""
+          s=s.replace(old,new,1)
+
+          # Keep old-Hoyt safety warning after counted value is entered
+          s=s.replace("'Ausgehend von vollständig eingedreht.';",
+          "'Ausgehend von vollständig eingedreht.' + (r.oldHoytFlush ? ' <strong>Nur bis bündig; mindestens 6 Gewindegänge Eingriff.</strong>' : '');",1)
+
+          # Purchase designation column
+          s=s.replace('<th>Hersteller</th><th>Serie / Spine</th><th>Spitze</th><th>Schaft</th><th>Spitze</th><th>ca. 12 Pfeile*</th>',
+          '<th>Hersteller</th><th>Serie / Spine</th><th>Spitzengewicht</th><th>Kaufbezeichnung Spitze</th><th>Schaft</th><th>Spitze</th><th>ca. 12 Pfeile*</th>')
+
+          # Correct point ranges in comparison catalog
+          s=s.replace("if(s<=500)return [100,110,120];\n   if(s<=730)return [90,100,110];\n   if(s<=1150)return [70,80,90];\n   return [50,60,70];",
+          "if(s<=450)return [100,110,120];\n   if(s<=660)return [90,100,110];\n   if(s<=900)return [70,80,90];\n   return [60,70,80];",1)
+          s=re.sub(r"points:function\(s\)\{\n   if\(s===400\)return \[110,120,130\];\n   if\(s>=450&&s<=700\)return \[60,70,80,90,100,110\];\n   if\(s>=800\)return \[70,80,90,100,110\];\n   return \[100,110,120\];\n  \}",
+          "points:function(){return [80,90,100,120,130,140];}",s, count=1)
+
+          # Helper returns exact point purchase designation
+          helper="""
+function purchasePointName(cat,s,p){
+ if(cat.brand==='Easton'){
+   if(s<=450)return 'Easton 4MM ML Stainless Steel Point #4 · 100–120 gr';
+   if(s<=660)return 'Easton 4MM ML Stainless Steel Point #3 · 90–110 gr';
+   if(s<=900)return 'Easton 4MM ML Stainless Steel Point #2 · 70–90 gr';
+   return 'Easton 4MM ML Stainless Steel Point #1 · 60–80 gr';
+ }
+ if(cat.series==='Onawa Pro XT 3.2'){
+   if(s===500)return 'NIJORA TeKa 3.2 Edelstahl Einklebespitze · Typ 1 · 120-110-100 gr';
+   if(s===600 && p<=80)return 'NIJORA TeKa 3.2 Edelstahl Einklebespitze · Typ 2.2 · 80-70-60 gr';
+   if(s===600)return 'NIJORA TeKa 3.2 Edelstahl Einklebespitze · Typ 2.1 · 120-110-100 gr';
+   if(s===700)return 'NIJORA TeKa 3.2 Edelstahl Einklebespitze · Typ 3 · 120-110-100 gr';
+   return 'NIJORA TeKa 3.2 Edelstahl Einklebespitze · Typ 4 · 120-110-100 gr';
+ }
+ if(cat.series==='Onawa Pro 4.2')return 'NIJORA Onawa Pro Edelstahl 4.2 Einklebespitze · Break-Off 100-90-80 gr · Variante für Spine '+s;
+ if(cat.brand==='Avalon'){
+   const fit=s<=800?'Spine 600–800':(s<=1500?'Spine 900–1500':'Spine 1800–2000');
+   return 'Avalon Tyro Hybrid Glue-In Points · ID 4.2 mm · '+p+' gr · '+fit;
+ }
+ if(cat.brand==='Victory'){
+   const heavy=p>=120;
+   let code='';
+   if(s===350)code=heavy?'ACVPTM140':'ACVPTM100';
+   else if(s<=500)code=heavy?'ACVPTS140':'ACVPTS100';
+   else code=heavy?'ACVPTXS140':'ACVPTXS100';
+   return 'Victory VAP Target SS Break-Off Point '+(heavy?'120–140 gr':'80–100 gr')+' · Art.-Nr. '+code;
+ }
+ return 'Passende Hersteller-Spitze';
+}
+"""
+          s=s.replace('function brandChoice(cat,targetSpine,targetPoint){',helper+'\nfunction brandChoice(cat,targetSpine,targetPoint){',1)
+          s=s.replace('return {cat,s,p,total:twelveCost(cat),delta:Math.abs(s-targetSpine)};',
+          'return {cat,s,p,pointName:purchasePointName(cat,s,p),total:twelveCost(cat),delta:Math.abs(s-targetSpine)};',1)
+          s=s.replace('`<td data-label="Spitze"><strong>${x.p} gr</strong></td>`+',
+          '`<td data-label="Spitzengewicht"><strong>${x.p} gr</strong></td>`+\n   `<td data-label="Kaufbezeichnung Spitze"><strong>${x.pointName}</strong></td>`+',1)
+
+          p.write_text(s,encoding='utf-8')
+          PY
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pfeilkauf/index.html
+          if git diff --cached --quiet; then
+            echo "No changes needed"
+          else
+            git commit -m "Add Aerotec Matrix and point purchase names"
+            git push
+          fi
