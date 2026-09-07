@@ -1,10 +1,6 @@
 name: Build standalone offline archery apps
 
 on:
-  push:
-    paths:
-      - '.github/workflows/build-standalone-offline.yml'
-      - 'tools/build_offline.py'
   workflow_dispatch:
 
 permissions:
