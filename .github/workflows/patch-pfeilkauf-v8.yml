@@ -1,0 +1,75 @@
+name: Patch Pfeilkauf V8
+
+on:
+  push:
+    paths:
+      - '.github/workflows/patch-pfeilkauf-v8.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch app
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('pfeilkauf/index.html')
+          t=p.read_text(encoding='utf-8')
+
+          t=t.replace(
+            '<option value="hoyt_legacy_manual">Matrix / Aerotec / sehr altes Hoyt – Herstellergrenze prüfen</option>',
+            '<option value="hoyt_aerotec">Aerotec</option><option value="hoyt_matrix">Matrix</option><option value="hoyt_legacy_manual">Sehr altes Hoyt – Herstellergrenze prüfen</option>'
+          )
+
+          t=t.replace(
+            "'hoyt_legacy_manual':{name:'Hoyt Matrix / Aerotec / sehr altes Modell',turns:null,manual:true},",
+            "'hoyt_aerotec':{name:'Hoyt Aerotec',turns:null,manual:true,legacyRule:true},'hoyt_matrix':{name:'Hoyt Matrix',turns:null,manual:true,legacyRule:true},'hoyt_legacy_manual':{name:'Sehr altes Hoyt Mittelteil',turns:null,manual:true},"
+          )
+
+          old_sel="function selectedRiser(){const id=document.getElementById('riserSelect').value;if(!id||!riserDB[id])return null;const b=riserDB[id];if(b.manual){const mv=Number(document.getElementById('manualTurns').value);return{name:b.name,turns:Number.isFinite(mv)&&mv>0?mv:null,manual:true}}return{name:b.name,turns:b.turns,manual:false}}"
+          new_sel="function selectedRiser(){const id=document.getElementById('riserSelect').value;if(!id||!riserDB[id])return null;const b=riserDB[id];if(b.manual){const mv=Number(document.getElementById('manualTurns').value);return{name:b.name,turns:Number.isFinite(mv)&&mv>0?mv:null,manual:true,legacyRule:!!b.legacyRule}}return{name:b.name,turns:b.turns,manual:false,legacyRule:!!b.legacyRule}}"
+          t=t.replace(old_sel,new_sel)
+
+          old_refresh="function refreshRiser(){const r=selectedRiser(),wrap=document.getElementById('manualWrap'),box=document.getElementById('limitBox');wrap.style.display=r&&r.manual?'block':'none';if(!r){box.innerHTML='<strong>Noch kein Mittelteil ausgewählt.</strong><span class=\"big\">Bitte Mittelteil auswählen</span>';document.getElementById('measureInstruction').innerHTML='<strong>Messablauf:</strong> Zuerst Mittelteil auswählen.';return}if(!r.turns){box.innerHTML=`<strong>${r.name}</strong><span class=\"big\">Herstellerwert erforderlich</span>Bitte maximale Umdrehungszahl laut Hersteller eintragen.`;document.getElementById('measureInstruction').innerHTML='<strong>Messablauf:</strong> Erst den sicheren Herstellerwert eintragen.';return}box.innerHTML=`<strong>${r.name}</strong><span class=\"big\">max. ${r.turns} Umdrehungen rausdrehen!</span>Ausgehend von vollständig eingedreht.`;document.getElementById('wMinLabel').textContent=`Zuggewicht – nach max. ${r.turns} Umdrehungen herausdrehen`;document.getElementById('measureInstruction').innerHTML=`<strong>Anweisung:</strong> Zuggewicht bei vollständig eingedrehten Tillerschrauben messen. Danach <strong>max. ${r.turns} Umdrehungen rausdrehen!</strong> und erneut messen.`}"
+          new_refresh="function refreshRiser(){const r=selectedRiser(),wrap=document.getElementById('manualWrap'),box=document.getElementById('limitBox');wrap.style.display=r&&r.manual?'block':'none';if(!r){box.innerHTML='<strong>Noch kein Mittelteil ausgewählt.</strong><span class=\"big\">Bitte Mittelteil auswählen</span>';document.getElementById('measureInstruction').innerHTML='<strong>Messablauf:</strong> Zuerst Mittelteil auswählen.';return}if(!r.turns){if(r.legacyRule){box.innerHTML=`<strong>${r.name}</strong><span class=\"big\">max. bis Tillerschraube bündig!</span><strong>Mindestens 6 Gewindegänge müssen im Mittelteil im Eingriff bleiben.</strong><br>Die Umdrehungen von vollständig eingedreht bis zu dieser sicheren Grenzstellung zählen und oben eintragen.`;document.getElementById('measureInstruction').innerHTML='<strong>Anweisung für Aerotec/Matrix:</strong> Nicht nach einer pauschalen Umdrehungszahl arbeiten. Tillerschraube höchstens bündig; mindestens 6 Gewindegänge im Eingriff. Die bis zur sicheren Grenzstellung benötigten Umdrehungen zählen und eintragen.'}else{box.innerHTML=`<strong>${r.name}</strong><span class=\"big\">Herstellerwert erforderlich</span>Bitte maximale Umdrehungszahl laut Hersteller eintragen.`;document.getElementById('measureInstruction').innerHTML='<strong>Messablauf:</strong> Erst den sicheren Herstellerwert eintragen.'}return}box.innerHTML=`<strong>${r.name}</strong><span class=\"big\">max. ${r.turns} Umdrehungen rausdrehen!</span>Ausgehend von vollständig eingedreht.${r.legacyRule?'<br><strong>Zusätzlich:</strong> Tillerschraube höchstens bündig; mindestens 6 Gewindegänge im Eingriff.':''}`;document.getElementById('wMinLabel').textContent=`Zuggewicht – nach max. ${r.turns} Umdrehungen herausdrehen`;document.getElementById('measureInstruction').innerHTML=`<strong>Anweisung:</strong> Zuggewicht bei vollständig eingedrehten Tillerschrauben messen. Danach <strong>max. ${r.turns} Umdrehungen rausdrehen!</strong> und erneut messen.`}"
+          t=t.replace(old_refresh,new_refresh)
+
+          t=t.replace(
+            '<th>Hersteller</th><th>Serie / Spine</th><th>Spitze</th><th>Schaft</th><th>Spitze</th><th>ca. 12 Pfeile*</th>',
+            '<th>Hersteller</th><th>Serie / Spine</th><th>Spitze / Kaufbezeichnung</th><th>Schaft</th><th>Spitze</th><th>ca. 12 Pfeile*</th>'
+          )
+
+          start=t.index('const brandCatalog=')
+          end=t.index(';\nfunction lb(',start)+1
+          new_catalog="""const brandCatalog={easton:{brand:'Easton',series:'Avance',spines:[340,400,450,500,550,600,660,730,810,900,1000,1150,1400,1600,1800,2000],shaftPack:120.79,shaftQty:12,pointPack:21.37,pointQty:12,shaftText:'120,79 € / 12',pointText:'21,37 € / 12',points:s=>s<=450?[100,110,120]:s<=660?[90,100,110]:s<=900?[70,80,90]:[50,60,70],pointName:(s,p)=>`Easton 4MM ML Stainless Steel Point ${s<=450?'#4':s<=660?'#3':s<=900?'#2':'#1'}`},nijoraXT:{brand:'Nijora',series:'Onawa Pro XT 3.2',spines:[500,600,700,800],shaftPack:14.9,shaftQty:1,pointPack:1.55,pointQty:1,shaftText:'14,90 € / St.',pointText:'1,55 € / St.',points:s=>s===600?[60,70,80,100,110,120]:[100,110,120],pointName:(s,p)=>`NIJORA TeKa 3.2 Edelstahl Einklebespitze – ${s===500?'Typ 1':s===600?(p<=80?'Typ 2.2':'Typ 2.1'):s===700?'Typ 3':'Typ 4'}`},nijoraPro:{brand:'Nijora',series:'Onawa Pro 4.2',spines:[400,500,600,700,800,900,1000,1100,1200],shaftPack:6.95,shaftQty:1,pointPack:1.2,pointQty:1,shaftText:'6,95 € / St.',pointText:'ab 1,20 € / St.',points:()=>[80,90,100],pointName:()=>`NIJORA Onawa Pro Edelstahl 4.2 Einklebespitze`},avalon:{brand:'Avalon',series:'Tyro 4.2',spines:[600,700,800,900,1000,1100,1300,1500,1800],shaftPack:36,shaftQty:12,pointPack:5,pointQty:12,shaftText:'36,00 € / 12',pointText:'5,00 € / 12',points:()=>[50,70,90],pointName:()=>`AVALON Tyro/Hybrid Glue-In Point – Einklebespitze 4,2 mm`},victory:{brand:'Victory',series:'VAP Target Sport',spines:[350,400,450,500,600,700,800,900,1000,1100,1200],shaftPack:110,shaftQty:12,pointPack:31.8,pointQty:12,shaftText:'110,00 € / 12',pointText:'31,80 € / 12',points:s=>s<=450?[120,130,140]:[80,90,100],pointName:(s,p)=>p>=120?'Victory SS Break-Off Point 120–140 gr für VAP':'Victory SS Break-Off Point 80–100 gr für VAP'}}"""
+          t=t[:start]+new_catalog+t[end:]
+
+          old_choice="function brandChoice(c,s,p){const ns=nearest(c.spines,s),np=nearestPoint(c.points(ns),p);return{cat:c,s:ns,p:np,total:twelveCost(c),delta:Math.abs(ns-s)}}"
+          new_choice="function brandChoice(c,s,p){const ns=nearest(c.spines,s),np=nearestPoint(c.points(ns),p),pointPurchaseName=c.pointName?c.pointName(ns,np):'';return{cat:c,s:ns,p:np,pointPurchaseName,total:twelveCost(c),delta:Math.abs(ns-s)}}"
+          t=t.replace(old_choice,new_choice)
+
+          t=t.replace(
+            '<td data-label=\"Spitze\"><strong>${x.p} gr</strong></td>',
+            '<td data-label=\"Spitze / Kaufbezeichnung\"><strong>${x.p} gr</strong><div class=\"brandnote\">${x.pointPurchaseName}</div></td>'
+          )
+
+          p.write_text(t,encoding='utf-8')
+          PY
+      - name: Commit patch
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pfeilkauf/index.html
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "Add point purchase names and Hoyt Aerotec Matrix"
+            git push
+          fi
