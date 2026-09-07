@@ -1,0 +1,53 @@
+name: Build field-test v4 offline archery app
+
+on:
+  push:
+    paths:
+      - 'tools/patch_field_v4.py'
+      - '.github/workflows/build-field-v4.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build standalone offline files
+        run: python tools/build_offline.py
+      - name: Apply field-test v4 patch
+        run: python tools/patch_field_v4.py
+      - name: Build iPad PWA
+        run: python tools/build_ipad_pwa.py
+      - name: Verify preserved and new functions
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re,base64
+          combos=[
+            Path('offline-downloads/Bogen_Setup_Assistent_v3_Offline_DE.html'),
+            Path('offline-downloads/Asistente_Puesta_a_Punto_v3_Offline_ES.html'),
+            Path('offline-downloads/Bow_Setup_Assistant_v3_Offline_EN.html')]
+          for p in combos:
+              t=p.read_text(encoding='utf-8')
+              assert 'const BLANK=' in t
+              m=re.search(r"const BRACE='([^']*)';",t); assert m
+              b=base64.b64decode(m.group(1)).decode('utf-8')
+              assert 'brace_sessions_wa_v4' in b
+              assert 'touchstart' in b and 'touchmove' in b
+              assert 'arrowQuality' in b or 'Pfeilqualität' in b or 'calidad' in b.lower()
+              assert 'state.series.sort' in b
+              print('OK',p)
+          for p in [Path('ipad-app/de.html'),Path('ipad-app/es.html'),Path('ipad-app/en.html')]:
+              assert p.exists() and p.stat().st_size>20000
+              print('PWA OK',p,p.stat().st_size)
+          PY
+      - name: Commit generated offline and iPad files
+        run: |
+          git config user.name "RBlome22"
+          git config user.email "r.blome@rainer-blome.de"
+          git add offline-downloads ipad-app
+          git commit -m "Field v4: pinch zoom, date archive, ordered series, compact phase view" || true
+          git push
