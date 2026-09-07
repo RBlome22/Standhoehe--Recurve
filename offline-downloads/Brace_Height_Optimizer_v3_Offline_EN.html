@@ -210,6 +210,7 @@ const clone=x=>JSON.parse(JSON.stringify(x||[]));
 function seriesDay(s){
  const z=String(s&&s.date||''); let m=z.match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/); if(m)return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
  m=z.match(/(\d{4})-(\d{1,2})-(\d{1,2})/); if(m)return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
+ m=z.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/); if(m)return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`; // slashDateV4: en-GB / es-ES
  return localStorage.getItem(ACTIVE)||TODAY;
 }
 function mergeDay(k,arr){
@@ -294,6 +295,23 @@ if(canvas&&wrap&&typeof screenToCanvas==='function'){
 
 // Ensure the current day is shown after the addon has migrated the data.
 drawAll();
+})();
+</script>
+<script id="field-v4-seriesfix">
+(function(){
+'use strict';
+if(window.__FIELD_V4_SERIESFIX__)return;window.__FIELD_V4_SERIESFIX__=true;
+function firstFreeSeries(){
+  if(typeof state==='undefined'||!Array.isArray(state.series))return 1;
+  const used=new Set(state.series.map(s=>Number(s.seriesNo)).filter(n=>Number.isFinite(n)&&n>0));
+  let n=1;while(used.has(n))n++;return n;
+}
+function offerFirstFree(){const e=document.getElementById('seriesNo');if(e&&!e.disabled)e.value=firstFreeSeries()}
+const save=document.getElementById('saveSeriesBtn');
+if(save)save.addEventListener('click',()=>setTimeout(offerFirstFree,0));
+document.addEventListener('click',e=>{if(e.target&&e.target.id==='sessionTodayV4')setTimeout(offerFirstFree,0)});
+document.addEventListener('change',e=>{if(e.target&&e.target.id==='sessionDateV4')setTimeout(offerFirstFree,0)});
+setTimeout(offerFirstFree,0);
 })();
 </script>
 </body>
