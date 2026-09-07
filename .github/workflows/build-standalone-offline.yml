@@ -5,7 +5,6 @@ on:
     paths:
       - '.github/workflows/build-standalone-offline.yml'
       - 'tools/build_offline.py'
-      - 'tools/patch_field_test_v4.py'
   workflow_dispatch:
 
 permissions:
@@ -16,8 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Apply field test fixes
-        run: python tools/patch_field_test_v4.py
       - name: Build offline files
         run: python tools/build_offline.py
       - name: Verify generated files
@@ -35,14 +32,12 @@ jobs:
               t=p.read_text(encoding='utf-8')
               assert 'fetch(' not in t
               assert 'github.io' not in t
-              assert 'brace_sessions_by_date_v2' in t
-              assert 'photoViewport' in t
               print('offline OK:',p)
           PY
       - name: Commit generated files
         run: |
           git config user.name "RBlome22"
           git config user.email "r.blome@rainer-blome.de"
-          git add index.html standhoehe-es/index.html brace-height-en/index.html blankschaft-tuner-v261/index.html blankschaft-tuner-es/index.html bare-shaft-tuner-en/index.html tools/build_offline.py offline-downloads
-          git commit -m "Apply field test fixes and rebuild offline archery apps" || true
+          git add offline-downloads
+          git commit -m "Add fully standalone offline archery downloads" || true
           git push
