@@ -2,7 +2,7 @@
   "name": "Bogen Setup Offline",
   "short_name": "Bogen Setup",
   "description": "Internationaler Offline-Assistent für Standhöhe, Pfeilqualität, Blankschaft, Nockpunkt und Tiller beim Recurvebogen.",
-  "start_url": "./android/",
+  "start_url": "./android.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#f3f6f4",
