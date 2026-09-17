@@ -1,8 +1,10 @@
-const CACHE_NAME='bogen-setup-v3-offline-20260916-android1';
+const CACHE_NAME='bogen-setup-v3-offline-20260917-android2';
 const BASE='/Standhoehe--Recurve/';
 const PRECACHE=[
   BASE,
   BASE+'index.html',
+  BASE+'android/',
+  BASE+'android/index.html',
   BASE+'offline-v3/',
   BASE+'offline-v3/index.html',
   BASE+'offline-v3.webmanifest',
@@ -42,60 +44,6 @@ const PRECACHE=[
   BASE+'offline-v3-es.webmanifest',
   BASE+'offline-v3-en.webmanifest'
 ];
-
-self.addEventListener('install',event=>{
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(async cache=>{
-      for(const url of PRECACHE){
-        try{await cache.add(new Request(url,{cache:'reload'}));}
-        catch(e){console.warn('Could not precache',url,e);}
-      }
-    }).then(()=>self.skipWaiting())
-  );
-});
-
-self.addEventListener('activate',event=>{
-  event.waitUntil(
-    caches.keys().then(keys=>Promise.all(
-      keys.filter(k=>k.startsWith('bogen-setup-v3-offline-')&&k!==CACHE_NAME).map(k=>caches.delete(k))
-    )).then(()=>self.clients.claim())
-  );
-});
-
-self.addEventListener('fetch',event=>{
-  const req=event.request;
-  if(req.method!=='GET')return;
-  const url=new URL(req.url);
-  if(url.origin!==self.location.origin || !url.pathname.startsWith(BASE))return;
-
-  event.respondWith((async()=>{
-    const cache=await caches.open(CACHE_NAME);
-    const cached=await cache.match(req,{ignoreSearch:true});
-    if(cached){
-      event.waitUntil(
-        fetch(req).then(r=>{if(r&&r.ok)cache.put(req,r.clone());}).catch(()=>{})
-      );
-      return cached;
-    }
-    try{
-      const fresh=await fetch(req);
-      if(fresh&&fresh.ok)cache.put(req,fresh.clone());
-      return fresh;
-    }catch(e){
-      if(req.mode==='navigate'){
-        const requestedPath=url.pathname;
-        const preferred=[
-          requestedPath.includes('bogen-setup-assistent-es') ? BASE+'bogen-setup-assistent-es-v3/' : null,
-          requestedPath.includes('bow-setup-assistant') ? BASE+'bow-setup-assistant-v3/' : null,
-          requestedPath.includes('bogen-setup-assistent') ? BASE+'bogen-setup-assistent-v3/' : null,
-          BASE+'offline-v3/'
-        ].filter(Boolean);
-        for(const path of preferred){
-          const fallback=await cache.match(path,{ignoreSearch:true});
-          if(fallback)return fallback;
-        }
-      }
-      throw e;
-    }
-  })());
-});
+self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE_NAME).then(async cache=>{for(const url of PRECACHE){try{await cache.add(new Request(url,{cache:'reload'}));}catch(e){console.warn('Could not precache',url,e);}}}).then(()=>self.skipWaiting()));});
+self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('bogen-setup-v3-offline-')&&k!==CACHE_NAME).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
+self.addEventListener('fetch',event=>{const req=event.request;if(req.method!=='GET')return;const url=new URL(req.url);if(url.origin!==self.location.origin||!url.pathname.startsWith(BASE))return;event.respondWith((async()=>{const cache=await caches.open(CACHE_NAME);const cached=await cache.match(req,{ignoreSearch:true});if(cached){event.waitUntil(fetch(req).then(r=>{if(r&&r.ok)cache.put(req,r.clone());}).catch(()=>{}));return cached;}try{const fresh=await fetch(req);if(fresh&&fresh.ok)cache.put(req,fresh.clone());return fresh;}catch(e){if(req.mode==='navigate'){const requestedPath=url.pathname;const preferred=[requestedPath.includes('bogen-setup-assistent-es')?BASE+'bogen-setup-assistent-es-v3/':null,requestedPath.includes('bow-setup-assistant')?BASE+'bow-setup-assistant-v3/':null,requestedPath.includes('bogen-setup-assistent')?BASE+'bogen-setup-assistent-v3/':null,BASE+'android/'].filter(Boolean);for(const path of preferred){const fallback=await cache.match(path,{ignoreSearch:true});if(fallback)return fallback;}}throw e;}})());});
