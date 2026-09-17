@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#173d32">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="offline-v3.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<title>Bogen Setup – Android Offline</title>
+<style>
+:root{--bg:#f3f6f4;--card:#fff;--ink:#17231e;--muted:#66736d;--green:#0b6b4b;--dark:#173d32;--line:#d7e0db;--blue:#255e9d;--orange:#a45b00}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;line-height:1.5}main{max-width:900px;margin:auto;padding:22px}.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;margin-bottom:16px;box-shadow:0 5px 20px #0000000d}h1{margin:0 0 8px;font-size:28px}h2{margin:0 0 10px;font-size:21px}.muted{color:var(--muted)}.status{border-left:5px solid var(--blue);background:#eef5ff;border-radius:12px;padding:13px 15px;margin:14px 0}.status.ready{border-left-color:var(--green);background:#edf7f2}.status.warn{border-left-color:var(--orange);background:#fff6e8}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}@media(max-width:720px){.grid{grid-template-columns:1fr}}a,.button{display:block;text-decoration:none;border:0;border-radius:14px;padding:16px;background:var(--green);color:#fff;font-weight:800;text-align:center;font-size:16px;width:100%;cursor:pointer}.button:disabled{background:#9aa7a1;cursor:default}.secondary{background:#e6eeea;color:var(--dark)}ol{padding-left:22px}.tag{display:inline-block;background:#e6eeea;color:var(--dark);border-radius:999px;padding:4px 9px;margin:3px;font-size:13px;font-weight:700}footer{text-align:center;color:var(--muted);font-size:12px;padding:4px 16px 28px}
+</style>
+</head>
+<body>
+<main>
+<section class="card">
+<h1>Bogen Setup – Offline</h1>
+<p><span class="tag">Deutsch</span><span class="tag">Español</span><span class="tag">English</span></p>
+<p>Einmal mit Internet öffnen und installieren. Danach funktionieren Standhöhe, Pfeilqualität, Trefferbilder, Blankschaft, Nockpunkt und Tiller auch ohne Internet.</p>
+<div id="offlineStatus" class="status"><b>Offline-Daten werden vorbereitet …</b><br><span class="muted">Bitte diese Seite beim ersten Mal geöffnet lassen.</span></div>
+</section>
+<section class="card">
+<h2>Sprache / Idioma / Language</h2>
+<div class="grid">
+<div><a href="bogen-setup-assistent-v3/?v=20260917-android2">Deutsch</a></div>
+<div><a href="bogen-setup-assistent-es-v3/?v=20260917-android2">Español</a></div>
+<div><a href="bow-setup-assistant-v3/?v=20260917-android2">English</a></div>
+</div>
+</section>
+<section class="card">
+<h2>Android – App installieren</h2>
+<p>Bitte diese Seite in <b>Google Chrome</b> öffnen.</p>
+<button id="installBtn" class="button" disabled>App installieren</button>
+<div id="installHint" class="status warn"><b>Installationsschaltfläche wird vorbereitet.</b><br>Falls sie nicht aktiv wird: Browser-Menü <b>⋮</b> → <b>App installieren</b> oder <b>Zum Startbildschirm hinzufügen</b>.</div>
+<ol><li>Mit Internet öffnen.</li><li>Auf <b>✓ Offline-Daten gespeichert</b> warten.</li><li><b>App installieren</b> antippen.</li><li>Installation bestätigen.</li><li>Danach <b>Bogen Setup</b> über das Symbol auf dem Startbildschirm öffnen.</li><li>Jetzt funktioniert die App auch im <b>Flugmodus</b>.</li></ol>
+</section>
+</main>
+<footer>© 2026 Rainer Blome · Alle Rechte vorbehalten.</footer>
+<script>
+let deferredInstallPrompt=null;const installBtn=document.getElementById('installBtn'),installHint=document.getElementById('installHint');
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;installBtn.disabled=false;installHint.className='status ready';installHint.innerHTML='<b>✓ Android-Installation ist bereit.</b><br>Jetzt auf „App installieren“ tippen.'});
+installBtn.addEventListener('click',async()=>{if(!deferredInstallPrompt)return;deferredInstallPrompt.prompt();try{await deferredInstallPrompt.userChoice}catch(e){}deferredInstallPrompt=null;installBtn.disabled=true});
+window.addEventListener('appinstalled',()=>{installHint.className='status ready';installHint.innerHTML='<b>✓ Bogen Setup wurde installiert.</b>'});
+(async()=>{const s=document.getElementById('offlineStatus');if(!('serviceWorker'in navigator)){s.className='status warn';s.innerHTML='<b>Offline-Installation wird von diesem Browser nicht unterstützt.</b>';return}try{await navigator.serviceWorker.register('offline-sw-v3.js');await navigator.serviceWorker.ready;s.classList.add('ready');s.innerHTML='<b>✓ Offline-Daten gespeichert.</b><br>Die App kann jetzt installiert und anschließend ohne Internet verwendet werden.'}catch(e){s.className='status warn';s.innerHTML='<b>Offline-Daten konnten noch nicht gespeichert werden.</b><br>Bitte Internetverbindung prüfen und Seite neu laden.'}})();
+if(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches){installBtn.style.display='none';installHint.className='status ready';installHint.innerHTML='<b>✓ App ist bereits installiert.</b>'}
+</script>
+</body></html>
