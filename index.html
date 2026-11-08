@@ -60,6 +60,23 @@ button{border:0;border-radius:11px;padding:10px 12px;background:var(--accent);co
 }
 
 
+
+/* Zusatzmodul Blankschafttest – berührt die Standhöhen-Funktionen nicht */
+#bsSection .bs-stage{position:relative;max-width:1000px;margin:12px auto;border-radius:12px;overflow:hidden;background:#151515;border:1px solid #d8dde5}
+#bsSection .bs-stage img{width:100%;height:auto;display:block}
+#bsSection .bs-stage canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:manipulation;cursor:crosshair}
+#bsSection .bs-mode[aria-pressed="true"]{outline:3px solid #152d50;outline-offset:1px}
+#bsSection .bs-mode{white-space:normal}
+#bsSection .bs-markerlist{display:flex;flex-wrap:wrap;gap:7px;margin:8px 0}
+#bsSection .bs-markerlist button{font-weight:500;font-size:13px;padding:8px}
+#bsSection .bs-result{padding:12px;border-radius:12px;background:#f0f7ff;border:1px solid #cde1ff;margin:10px 0}
+#bsSection .bs-result strong{font-size:17px}
+#bsSection .bs-table-wrap{overflow-x:auto}
+#bsSection .bs-color-f{color:#067747;font-weight:700}
+#bsSection .bs-color-b{color:#a35b00;font-weight:700}
+#bsSection .bs-help{font-size:13px;color:#5b6572;margin:8px 0}
+@media print{#bsSection .bs-stage{max-width:460px}#bsSection .bs-markerlist,#bsSection .bs-controls{display:none!important}}
+
 </style>
 
 <link rel="manifest" href="manifest.webmanifest">
@@ -183,6 +200,43 @@ button{border:0;border-radius:11px;padding:10px 12px;background:var(--accent);co
   <div id="bsTableWrap"></div>
   <p class="hint">Auswertung: Die Mitte der befiederten Treffer ist der Bezugspunkt. Die App berechnet den Mittelwert der Blankschäfte relativ dazu. Positive Horizontalwerte = rechts, positive Vertikalwerte = oberhalb. Die Abweichung in mm ist eine gemessene Trefferlage, keine automatische Diagnose der Pfeilsteifigkeit. Für genaue Messungen das Foto möglichst senkrecht vor der Scheibe aufnehmen.</p>
 </section>
+
+<section class="card" id="bsSection">
+<h2>6. Blankschafttest – ein gemeinsames Foto</h2>
+<p class="hint">Befiederte Pfeile und 1–3 Blankschäfte gemeinsam fotografieren. Beim Markieren wählt der Schütze den Pfeiltyp; die Zuordnung lässt sich nachträglich ändern. Dieser Test ist unabhängig von den Standhöhen-Serien.</p>
+<div class="grid" style="margin-top:12px">
+  <div class="col-3"><label for="bsFCount">Befiederte Pfeile</label><select id="bsFCount"><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option></select></div>
+  <div class="col-3"><label for="bsBCount">Blankschäfte</label><select id="bsBCount"><option value="1" selected>1</option><option value="2">2</option><option value="3">3</option></select></div>
+  <div class="col-3"><label for="bsTargetCm">Scheibendurchmesser (cm)</label><input type="number" id="bsTargetCm" min="1" step="0.1" value="40"></div>
+  <div class="col-3"><label for="bsDistance">Schießentfernung (m)</label><input type="number" id="bsDistance" min="1" step="1" value="18"></div>
+  <div class="col-6"><label for="bsFile">Vorhandenes Foto auswählen</label><input id="bsFile" type="file" accept="image/*"></div>
+  <div class="col-6"><label for="bsCamera">Mit Kamera aufnehmen</label><input id="bsCamera" type="file" accept="image/*" capture="environment"></div>
+</div>
+<div id="bsStatus" class="status">1. Foto auswählen. 2. Zwei gegenüberliegende Punkte auf dem Scheibendurchmesser markieren. 3. Pfeiltyp wählen und Treffer antippen.</div>
+<div class="row bs-controls">
+  <button type="button" class="secondary bs-mode" id="bsCalMode" aria-pressed="true">Scheibe kalibrieren</button>
+  <button type="button" class="secondary bs-mode" id="bsFMode" aria-pressed="false">● Befiedert markieren</button>
+  <button type="button" class="secondary bs-mode" id="bsBMode" aria-pressed="false">◆ Blankschaft markieren</button>
+  <button type="button" class="secondary" id="bsUndo">Letzten Punkt löschen</button>
+  <button type="button" class="danger" id="bsReset">Alle Markierungen löschen</button>
+</div>
+<div class="bs-stage" id="bsStage" style="display:none">
+  <img id="bsPhoto" alt="Scheibenfoto für die Markierung">
+  <canvas id="bsOverlay"></canvas>
+</div>
+<p class="bs-help">Grün = befiedert, Orange = Blankschaft, Blau = Scheiben-Kalibrierung. Wähle den Typ vor dem Antippen; die Reihenfolge der Pfeile ist beliebig. Die Pfeilspitzen möglichst mittig antippen.</p>
+<div id="bsMarkerList" class="bs-markerlist"></div>
+<div id="bsResult" class="bs-result">Noch kein vollständiger Blankschafttest vorhanden.</div>
+<div class="bs-table-wrap" id="bsArrowTable"></div>
+<div class="row bs-controls" style="margin-top:10px">
+  <button type="button" class="ok" id="bsSave">Blankschafttest speichern</button>
+  <button type="button" class="secondary" id="bsExport">Blankschaft-Messungen als JSON</button>
+  <button type="button" class="secondary" id="bsPrint">Auswertung drucken</button>
+</div>
+<h3>Gespeicherte Blankschafttests</h3>
+<div id="bsHistory" class="bs-table-wrap"><p class="hint">Noch keine Blankschafttests gespeichert.</p></div>
+</section>
+
 <section class="card printOnly"><h2>Versuchsablauf</h2><p>Je Standhöhe werden 6 Pfeile geschossen. Pro Serie wird ein Ausreißer gestrichen. Die App berechnet aus den verbleibenden Treffern die konvexe Gruppenfläche in cm². Die Standhöhe mit dem kleinsten Flächeninhalt wird als optimale Standhöhe markiert.</p></section>
 <div id="detailOverlay" class="detailOverlay hidden" role="dialog" aria-modal="true"><div class="detailPanel"><div class="detailTop"><h2 id="detailTitle"></h2><button type="button" class="secondary" onclick="closeDetail()">Schließen</button></div><div class="detailCanvasWrap"><canvas id="detailCanvas" width="820" height="560"></canvas></div><div id="detailText" class="detailText"></div></div></div>
 </main>
@@ -263,6 +317,197 @@ $("exportCsvBtn").onclick=()=>{let rows=[["Serie","Standhoehe","Einheit","Flaech
 $("exportJsonBtn").onclick=()=>download("standhoehe_recurve_sicherung.json",JSON.stringify({settings:state.settings,series:state.series},null,2),"application/json");
 $("importJsonBtn").onclick=()=>$("importFile").click();$("importFile").onchange=e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let d=JSON.parse(r.result);if(d.settings){state.settings=d.settings;localStorage.setItem("brace_settings_wa_v1",JSON.stringify(d.settings));restoreSettings()}if(d.series){state.series=d.series;localStorage.setItem("brace_series_wa_v1",JSON.stringify(d.series))}drawAll()}catch(err){alert("JSON konnte nicht gelesen werden.")}};r.readAsText(f)}
 $("clearAllBtn").onclick=()=>{if(confirm("Alle gespeicherten Serien löschen?")){state.series=[];localStorage.removeItem("brace_series_wa_v1");drawAll()}}
+
+/* Unabhängiges Zusatzmodul: Blankschafttest aus einem Foto */
+(function(){
+"use strict";
+const byId=id=>document.getElementById(id);
+const data={url:null,ready:false,cal:[],pts:[],mode:"cal",history:[]};
+const storeKey="brace_blankschaft_history_v1";
+try{const x=JSON.parse(localStorage.getItem(storeKey)||"[]");data.history=Array.isArray(x)?x:[]}catch(e){data.history=[]}
+const text=(id,value)=>{byId(id).textContent=value};
+const count=t=>data.pts.filter(p=>p.type===t).length;
+const desired=t=>Number(byId(t==="f"?"bsFCount":"bsBCount").value);
+const radius=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+const number=n=>Number(n).toFixed(1).replace(".",",");
+function status(s,bad){text("bsStatus",s);byId("bsStatus").className=bad?"status warn":"status"}
+function setMode(m){
+ data.mode=m;
+ for(const [id,v] of [["bsCalMode","cal"],["bsFMode","f"],["bsBMode","b"]])byId(id).setAttribute("aria-pressed",m===v?"true":"false");
+}
+function clearMarks(){
+ data.pts=[];data.cal=[];setMode("cal");draw();showResult();status("Zuerst zwei gegenüberliegende Punkte auf dem Scheibendurchmesser antippen.");
+}
+function loadFile(file){
+ if(!file)return;
+ status("Foto wird geladen …");
+ const url=URL.createObjectURL(file), img=byId("bsPhoto");
+ const previous=data.url;
+ img.onload=()=>{
+   const w=img.naturalWidth||img.width,h=img.naturalHeight||img.height;
+   if(!w||!h){status("Foto konnte nicht ausgelesen werden.",true);return}
+   const scale=Math.min(1200/w,1200/h,1);
+   const cv=byId("bsOverlay");
+   cv.width=Math.max(1,Math.round(w*scale));cv.height=Math.max(1,Math.round(h*scale));
+   byId("bsStage").style.display="block";
+   data.ready=true;data.url=url;
+   if(previous&&previous!==url)URL.revokeObjectURL(previous);
+   clearMarks();
+   status("Foto sichtbar. Zwei Punkte an gegenüberliegenden Seiten des Scheibendurchmessers antippen.");
+ };
+ img.onerror=()=>{status("Dieses Foto kann nicht angezeigt werden. Bitte JPG/PNG wählen.",true);URL.revokeObjectURL(url)};
+ img.src=url;
+}
+for(const id of ["bsFile","bsCamera"]){
+ byId(id).addEventListener("change",e=>{
+  const file=e.target.files&&e.target.files[0];loadFile(file);e.target.value="";
+ });
+}
+function canvasPoint(e){
+ const c=byId("bsOverlay"),r=c.getBoundingClientRect();
+ if(!r.width||!r.height)return null;
+ return{x:(e.clientX-r.left)*c.width/r.width,y:(e.clientY-r.top)*c.height/r.height};
+}
+byId("bsOverlay").addEventListener("click",e=>{
+ if(!data.ready)return;
+ const p=canvasPoint(e);if(!p)return;
+ if(data.mode==="cal"){
+  if(data.cal.length===2)data.cal=[];
+  data.cal.push(p);
+  if(data.cal.length===2){setMode("f");status("Kalibrierung fertig. Befiederte Pfeile oder Blankschäfte markieren.")}
+  else status("Zweiten Punkt auf der gegenüberliegenden Scheibenseite antippen.");
+ }else{
+  if(data.cal.length!==2){status("Bitte zuerst den Scheibendurchmesser kalibrieren.",true);return}
+  if(count(data.mode)>=desired(data.mode)){status("Die ausgewählte Pfeilart ist vollständig markiert. Andere Pfeilart wählen.",true);return}
+  data.pts.push({x:p.x,y:p.y,type:data.mode});
+  if(count("f")===desired("f")&&count("b")<desired("b"))setMode("b");
+  else if(count("b")===desired("b")&&count("f")<desired("f"))setMode("f");
+ }
+ draw();showResult();
+});
+byId("bsCalMode").onclick=()=>{data.cal=[];setMode("cal");draw();showResult();status("Zwei gegenüberliegende Punkte auf dem Scheibendurchmesser antippen.")};
+byId("bsFMode").onclick=()=>setMode("f");
+byId("bsBMode").onclick=()=>setMode("b");
+byId("bsReset").onclick=clearMarks;
+byId("bsUndo").onclick=()=>{
+ if(data.pts.length){data.pts.pop();}else if(data.cal.length){data.cal.pop();setMode("cal")}
+ draw();showResult();
+};
+function draw(){
+ const c=byId("bsOverlay"),ctx=c.getContext("2d");
+ ctx.clearRect(0,0,c.width,c.height);ctx.lineWidth=3;
+ data.cal.forEach((p,i)=>{
+  ctx.beginPath();ctx.arc(p.x,p.y,9,0,Math.PI*2);ctx.fillStyle="#00d2ff";ctx.fill();
+  outlined(ctx,"K"+(i+1),p.x+11,p.y-11,"#00d2ff");
+ });
+ if(data.cal.length===2){
+  ctx.strokeStyle="#00d2ff";ctx.beginPath();ctx.moveTo(data.cal[0].x,data.cal[0].y);
+  ctx.lineTo(data.cal[1].x,data.cal[1].y);ctx.stroke();
+ }
+ let fi=0,bi=0;
+ data.pts.forEach(p=>{
+  const f=p.type==="f",index=f?++fi:++bi,col=f?"#14ca80":"#ffae26";
+  ctx.beginPath();ctx.arc(p.x,p.y,9,0,Math.PI*2);ctx.fillStyle=col;ctx.fill();
+  ctx.lineWidth=2;ctx.strokeStyle="#fff";ctx.stroke();
+  outlined(ctx,(f?"F":"B")+index,p.x+13,p.y-12,col);
+ });
+ const comp=compute();
+ if(comp){
+  const middle=(p,col,mark)=>{
+   ctx.beginPath();ctx.moveTo(p.x-10,p.y);ctx.lineTo(p.x+10,p.y);ctx.moveTo(p.x,p.y-10);ctx.lineTo(p.x,p.y+10);
+   ctx.strokeStyle=col;ctx.lineWidth=3;ctx.stroke();outlined(ctx,mark,p.x+12,p.y+12,col);
+  };
+  middle(comp.fCenter,"#0b9652","F Ø");middle(comp.bCenter,"#c57600","B Ø");
+ }
+ renderMarkers();
+}
+function outlined(ctx,s,x,y,color){
+ ctx.font="bold 17px system-ui";ctx.textAlign="left";ctx.textBaseline="middle";
+ ctx.lineWidth=4;ctx.strokeStyle="#121923";ctx.strokeText(s,x,y);
+ ctx.fillStyle=color;ctx.fillText(s,x,y);
+}
+function renderMarkers(){
+ const wrap=byId("bsMarkerList");wrap.replaceChildren();
+ let f=0,b=0;
+ data.pts.forEach((p,i)=>{
+  const n=p.type==="f"?++f:++b,btn=document.createElement("button");
+  btn.type="button";btn.className="secondary";
+  btn.textContent=(p.type==="f"?"● Befiedert ":"◆ Blank ")+n+" – Typ wechseln";
+  btn.onclick=()=>{
+   const target=p.type==="f"?"b":"f";
+   if(count(target)>=desired(target)){status("Für diese Pfeilart sind bereits alle Markierungen vorhanden.",true);return}
+   p.type=target;draw();showResult();
+  };
+  wrap.appendChild(btn);
+ });
+}
+function compute(){
+ if(!data.ready||data.cal.length!==2||count("f")!==desired("f")||count("b")!==desired("b"))return null;
+ const dia=Number(byId("bsTargetCm").value);
+ const px=radius(data.cal[0],data.cal[1]);
+ if(!(dia>0&&px>0))return null;
+ const f=data.pts.filter(p=>p.type==="f"),b=data.pts.filter(p=>p.type==="b");
+ const center=ps=>({x:ps.reduce((s,p)=>s+p.x,0)/ps.length,y:ps.reduce((s,p)=>s+p.y,0)/ps.length});
+ const fc=center(f),bc=center(b),factor=dia*10/px;
+ const dx=(bc.x-fc.x)*factor,dy=(fc.y-bc.y)*factor;
+ const individual=b.map((p,i)=>({number:i+1,dx:(p.x-fc.x)*factor,dy:(fc.y-p.y)*factor}));
+ return{fCenter:fc,bCenter:bc,dx,dy,dist:Math.hypot(dx,dy),individual,factor};
+}
+function showResult(){
+ const res=compute(),f=count("f"),b=count("b");
+ const r=byId("bsResult"),tab=byId("bsArrowTable");
+ if(!res){
+  r.textContent="Markiert: "+f+"/"+desired("f")+" befiederte Pfeile und "+b+"/"+desired("b")+" Blankschäfte. "+(data.cal.length===2?"":"Scheibendurchmesser noch kalibrieren. ");
+  tab.replaceChildren();return;
+ }
+ const hor=res.dx<0?"links":res.dx>0?"rechts":"mittig";
+ const ver=res.dy<0?"unten":res.dy>0?"oben":"mittig";
+ r.innerHTML="<strong>Blankschaft-Mittelpunkt: "+number(Math.abs(res.dx))+" mm "+hor+" / "+number(Math.abs(res.dy))+" mm "+ver+"</strong><div>Gesamtabweichung: "+number(res.dist)+" mm. Bezugsgröße ist der Mittelpunkt der befiederten Treffer.</div>";
+ let t="<table><thead><tr><th>Blankschaft</th><th>Seitlich</th><th>Höhe</th><th>Abstand</th></tr></thead><tbody>";
+ res.individual.forEach(p=>{
+  t+="<tr><td>B"+p.number+"</td><td>"+number(Math.abs(p.dx))+" mm "+(p.dx<0?"links":p.dx>0?"rechts":"mittig")+"</td><td>"+number(Math.abs(p.dy))+" mm "+(p.dy<0?"unten":p.dy>0?"oben":"mittig")+"</td><td>"+number(Math.hypot(p.dx,p.dy))+" mm</td></tr>";
+ });
+ tab.innerHTML=t+"</tbody></table>";
+}
+for(const id of ["bsFCount","bsBCount","bsTargetCm","bsDistance"])byId(id).addEventListener("change",()=>{
+  draw();showResult();if(data.pts.length)status("Bitte prüfen, ob die Anzahl der markierten Pfeile zur neuen Auswahl passt.");
+});
+function save(){
+ const r=compute();
+ if(!r){status("Zum Speichern erst alle Pfeile markieren und den Scheibendurchmesser kalibrieren.",true);return}
+ const obj={
+  date:new Date().toLocaleString("de-DE"),name:byId("archer").value||"",
+  bow:byId("bow").value||"",distance:Number(byId("bsDistance").value),
+  diameterCm:Number(byId("bsTargetCm").value),
+  fletched:desired("f"),bare:desired("b"),
+  dxMm:r.dx,dyMm:r.dy,distanceMm:r.dist,individual:r.individual,
+  points:data.pts.map(p=>({x:p.x,y:p.y,type:p.type})),
+  calibration:data.cal.map(p=>({x:p.x,y:p.y}))
+ };
+ data.history.push(obj);
+ try{localStorage.setItem(storeKey,JSON.stringify(data.history))}catch(e){status("Messung berechnet, aber Speichern im Browser nicht möglich. Bitte JSON exportieren.",true);return}
+ renderHistory();status("Blankschafttest gespeichert. Der Standhöhentest und seine Messdaten bleiben unverändert.");
+}
+byId("bsSave").onclick=save;
+function renderHistory(){
+ const w=byId("bsHistory");
+ if(!data.history.length){w.innerHTML="<p class='hint'>Noch keine Blankschafttests gespeichert.</p>";return}
+ let h="<table><thead><tr><th>Datum</th><th>Distanz</th><th>Befiedert</th><th>Blank</th><th>Seitlich</th><th>Höhe</th></tr></thead><tbody>";
+ data.history.slice().reverse().forEach(s=>{
+  h+="<tr><td>"+String(s.date||"").replace(/[<>&]/g,"")+"</td><td>"+Number(s.distance)+" m</td><td>"+Number(s.fletched)+"</td><td>"+Number(s.bare)+"</td><td>"+number(s.dxMm)+" mm</td><td>"+number(s.dyMm)+" mm</td></tr>";
+ });
+ w.innerHTML=h+"</tbody></table>";
+}
+byId("bsExport").onclick=()=>{
+ const payload={type:"blankschaft-tests",version:1,history:data.history};
+ const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="blankschaft_messungen.json";a.click();
+ setTimeout(()=>URL.revokeObjectURL(a.href),3000);
+};
+byId("bsPrint").onclick=()=>window.print();
+renderHistory();showResult();
+})();
+
 restoreSettings();drawAll();
 </script>
 <script src="blankschaft.js?v=20261108" defer></script>
