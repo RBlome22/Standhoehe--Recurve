@@ -25,6 +25,41 @@ button{border:0;border-radius:11px;padding:10px 12px;background:var(--accent);co
 .printOnly{display:none}
 @media(max-width:760px){.col-2,.col-3,.col-4,.col-6{grid-column:span 12}main{padding:10px}}
 @media print{header,.noPrint,.canvasWrap{display:none!important}body{background:#fff}.card{border:0;box-shadow:none}.printOnly{display:block}#chartCanvas{height:280px}}
+
+/* Blankschafttest: Foto als echtes IMG, nur Markierungen auf Canvas */
+.bs-stage{position:relative;max-width:850px;width:100%;background:#101318;border:1px solid var(--line);border-radius:12px;overflow:hidden;line-height:0}
+.bs-stage img{display:block;width:100%;height:auto;-webkit-user-select:none;user-select:none;pointer-events:none}
+.bs-stage canvas{position:absolute;top:0;left:0;width:100%;height:100%;touch-action:manipulation;cursor:crosshair}
+.bs-stage[hidden]{display:none!important}
+.bs-switch{background:#edf1f7;color:#263b51;border:2px solid transparent;min-width:125px}
+.bs-switch[data-active="true"]{border-color:#15395f;box-shadow:inset 0 0 0 1px #15395f}
+.bs-switch.bs-f{background:#dff5e7;color:#145b32}
+.bs-switch.bs-b{background:#fff0d9;color:#8b4d00}
+.bs-key{display:inline-flex;align-items:center;gap:6px;margin-right:15px;font-size:14px}
+.bs-dot{display:inline-block;width:12px;height:12px;border-radius:50%;background:#168849}
+.bs-diamond{display:inline-block;width:12px;height:12px;transform:rotate(45deg);background:#e58306}
+.bs-markers{padding-left:0;list-style:none;display:grid;gap:6px}
+.bs-markers li{display:flex;align-items:center;gap:9px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding:6px 0}
+.bs-markers li select{width:auto;min-width:170px}
+.bs-markers li button{padding:6px 9px}
+.bs-result{background:#edf8f1;border:1px solid #b8e1c7;border-radius:12px;padding:12px;margin:12px 0}
+.bs-result h3{margin:0 0 8px}
+.bs-offsets{display:flex;gap:18px;flex-wrap:wrap}
+.bs-offsets div{min-width:140px}
+.bs-offsets strong{font-size:22px;display:block}
+.bs-photo-print{display:none;max-width:520px;width:100%;height:auto;border:1px solid #ddd;margin:10px 0}
+.bs-photo-print:not([src]),.bs-photo-print[src=""]{display:none!important}
+#bsTableWrap{overflow-x:auto}
+@media print{
+ body.bs-only main>.card:not(#blankschaft){display:none!important}
+ #blankschaft .noPrint{display:none!important}
+ #blankschaft .bs-photo-print{display:block!important}
+ #blankschaft{page-break-inside:auto}
+ .bs-result,.bs-offsets{page-break-inside:avoid}
+ .bs-stage{display:none!important}
+}
+
+
 </style>
 
 <link rel="manifest" href="manifest.webmanifest">
@@ -33,10 +68,10 @@ button{border:0;border-radius:11px;padding:10px 12px;background:var(--accent);co
 <meta name="apple-mobile-web-app-title" content="Standhöhe Recurve">
 <meta name="application-name" content="Standhöhe Recurve">
 
-<meta name="app-release" content="2026-08-25-r2-arrow-quality">
+<meta name="app-release" content="2026-11-08-r3-blankschaft">
 </head>
 <body>
-<header><h1>Standhöhe-Optimierer für Recurvebogen – WhatsApp-Schulung</h1><p>Offline-App: Foto laden · Pfeile markieren · Ausreißer streichen · optimale Standhöhe finden</p></header>
+<header><h1>Standhöhe-Optimierer für Recurvebogen – WhatsApp-Schulung</h1><p>Foto laden · Standhöhe optimieren · Pfeilqualität · Blankschafttest</p></header>
 <main>
 
 <section class="card noPrint" id="onlineStartHinweis">
@@ -104,6 +139,50 @@ button{border:0;border-radius:11px;padding:10px 12px;background:var(--accent);co
 
 <section class="card"><h2>4. Serienübersicht</h2><div id="tableWrap"></div></section>
 <section class="card"><h2>5. Pfeilqualität</h2><p class="hint">Die Bewertung vergleicht jeden nummerierten Pfeil über alle Serien anhand seines mittleren Abstands zum Mittelpunkt der fünf gewerteten Pfeile. Einen Pfeil antippen, um sein Trefferbild über alle Serien zu sehen. Eine Serie in der Übersicht antippen, um das komplette Serien-Trefferbild zu öffnen.</p><div id="arrowQualityWrap"></div></section>
+<section class="card" id="blankschaft">
+  <h2>6. Blankschafttest – beide Pfeilarten auf einem Foto</h2>
+  <p class="hint">Zuerst die befiederten Pfeile und 1–3 Blankschäfte auf dieselbe Scheibe schießen. Danach <b>ein gemeinsames Foto</b> machen. Beim Markieren ordnet der Schütze jeden Pfeil zu; die Reihenfolge ist frei.</p>
+  <div class="grid" style="margin-top:12px">
+    <div class="col-3"><label for="bsFCount">Befiederte Pfeile</label>
+      <select id="bsFCount"><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option></select></div>
+    <div class="col-3"><label for="bsBCount">Blankschäfte (wählbar)</label>
+      <select id="bsBCount"><option value="1">1 Blankschaft</option><option value="2" selected>2 Blankschäfte</option><option value="3">3 Blankschäfte</option></select></div>
+    <div class="col-3"><label for="bsDiameter">Scheibendurchmesser (cm)</label><input type="number" id="bsDiameter" value="40" step="0.1" min="1"></div>
+    <div class="col-3"><label for="bsDistance">Schussentfernung (m)</label><input type="number" id="bsDistance" value="18" min="1" step="1"></div>
+    <div class="col-6"><label for="bsImageInput">Vorhandenes Scheibenfoto laden</label><input type="file" id="bsImageInput" accept="image/*"></div>
+    <div class="col-6"><label for="bsCameraInput">Neues gemeinsames Foto aufnehmen</label><input type="file" id="bsCameraInput" accept="image/*" capture="environment"></div>
+  </div>
+  <div id="bsStatus" class="status" role="status" aria-live="polite">Ein Foto mit beiden Pfeilarten laden oder aufnehmen. Anschließend die Scheibe kalibrieren.</div>
+  <div class="row noPrint" style="margin:10px 0">
+    <button id="bsCalibration" class="secondary">Scheibendurchmesser markieren</button>
+    <button id="bsSelectF" class="bs-switch bs-f" data-active="true">● Befiedert</button>
+    <button id="bsSelectB" class="bs-switch bs-b" data-active="false">◆ Blank</button>
+    <button id="bsUndo" class="secondary">Letzten Punkt zurück</button>
+    <button id="bsClear" class="danger">Alle Punkte löschen</button>
+  </div>
+  <div class="noPrint" style="margin:8px 0"><span class="bs-key"><span class="bs-dot"></span>Befiederter Pfeil</span><span class="bs-key"><span class="bs-diamond"></span>Blankschaft</span><span style="color:#009bc2">● Kalibrierpunkte (blau)</span></div>
+  <div id="bsPhotoStage" class="bs-stage noPrint" hidden>
+    <img id="bsPhoto" alt="Scheibenfoto mit befiederten Pfeilen und Blankschäften" draggable="false">
+    <canvas id="bsOverlay" aria-label="Trefferpositionen auf der Scheibe markieren"></canvas>
+  </div>
+  <div id="bsEmptyPhoto" class="status warn noPrint">Noch kein Foto ausgewählt. Das Foto erscheint hier groß und bleibt während der Markierung sichtbar.</div>
+  <h3>Zuordnung der getippten Pfeile</h3>
+  <p class="hint noPrint">Mit „Befiedert“ oder „Blank“ auswählen, welche Pfeilart du als Nächstes antippst. Eine bereits markierte Position kannst du unten jederzeit umsortieren.</p>
+  <div id="bsCounter" class="status">Befiedert: 0/3 · Blank: 0/2</div>
+  <ul id="bsMarkers" class="bs-markers noPrint"></ul>
+  <div id="bsResult" class="status warn">Noch kein vollständiger Blankschafttest. Es werden alle befiederten und alle Blank-Treffer verglichen – ohne Ausreißer-Streichung.</div>
+  <img id="bsPhotoPrint" class="bs-photo-print" alt="Aufnahme mit markierten Pfeilen für den Ausdruck">
+  <div class="row noPrint" style="margin-top:12px">
+    <button id="bsSave" class="ok">Blankschafttest speichern</button>
+    <button id="bsPrint" class="secondary">Blankschafttest drucken</button>
+    <button id="bsExport" class="secondary">Blankschaft-JSON sichern</button>
+    <button id="bsImport" class="secondary">JSON laden</button>
+    <input id="bsImportFile" type="file" accept=".json,application/json" style="display:none">
+  </div>
+  <h3>Gespeicherte Blankschafttests</h3>
+  <div id="bsTableWrap"></div>
+  <p class="hint">Auswertung: Die Mitte der befiederten Treffer ist der Bezugspunkt. Die App berechnet den Mittelwert der Blankschäfte relativ dazu. Positive Horizontalwerte = rechts, positive Vertikalwerte = oberhalb. Die Abweichung in mm ist eine gemessene Trefferlage, keine automatische Diagnose der Pfeilsteifigkeit. Für genaue Messungen das Foto möglichst senkrecht vor der Scheibe aufnehmen.</p>
+</section>
 <section class="card printOnly"><h2>Versuchsablauf</h2><p>Je Standhöhe werden 6 Pfeile geschossen. Pro Serie wird ein Ausreißer gestrichen. Die App berechnet aus den verbleibenden Treffern die konvexe Gruppenfläche in cm². Die Standhöhe mit dem kleinsten Flächeninhalt wird als optimale Standhöhe markiert.</p></section>
 <div id="detailOverlay" class="detailOverlay hidden" role="dialog" aria-modal="true"><div class="detailPanel"><div class="detailTop"><h2 id="detailTitle"></h2><button type="button" class="secondary" onclick="closeDetail()">Schließen</button></div><div class="detailCanvasWrap"><canvas id="detailCanvas" width="820" height="560"></canvas></div><div id="detailText" class="detailText"></div></div></div>
 </main>
@@ -186,5 +265,6 @@ $("importJsonBtn").onclick=()=>$("importFile").click();$("importFile").onchange=
 $("clearAllBtn").onclick=()=>{if(confirm("Alle gespeicherten Serien löschen?")){state.series=[];localStorage.removeItem("brace_series_wa_v1");drawAll()}}
 restoreSettings();drawAll();
 </script>
+<script src="blankschaft.js?v=20261108" defer></script>
 </body>
 </html>
